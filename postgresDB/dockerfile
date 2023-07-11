@@ -1,0 +1,6 @@
+FROM postgres
+
+ENV POSTGRES_PASSWORD docker
+ENV POSTGRES_DB rat
+EXPOSE 8080
+COPY user*.sql /docker-entrypoint-initdb.d/
