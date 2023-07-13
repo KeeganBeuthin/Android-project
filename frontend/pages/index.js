@@ -4,6 +4,11 @@ const App = dynamic(() => import('../components/AppShell'), {
   ssr: false,
 });
 
-export default function Index() {
-  return <App />;
+
+ function Index() {
+  return   <App />
+ 
+
+
 }
+export default Index

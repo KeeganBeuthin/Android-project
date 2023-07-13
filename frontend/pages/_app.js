@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Script from 'next/script';
 import { setupIonicReact } from '@ionic/react';
-
+import { AuthProvider, useAuth } from "react-oidc-context";
 import 'tailwindcss/tailwind.css';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -21,10 +21,24 @@ import '@ionic/react/css/display.css';
 
 import '../styles/global.css';
 import '../styles/variables.css';
+const oidcConfig = {
+  authority: "http://localhost:4000",
+  client_id: "client",
+  client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
+  redirect_uri: "http://localhost:3000",
+  
+};
+
+
+
 
 function MyApp({ Component, pageProps }) {
   return (
+    
     <>
+    
+    <AuthProvider {...oidcConfig}>
+    
       <Head>
         <meta
           name="viewport"
@@ -37,6 +51,8 @@ function MyApp({ Component, pageProps }) {
         src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"
       ></Script>
       <Script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></Script>
+     
+      </AuthProvider>
     </>
   );
 }

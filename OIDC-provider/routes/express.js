@@ -5,11 +5,14 @@ import { inspect } from 'node:util';
 
 import isEmpty from 'lodash/isEmpty.js';
 import { urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
-
+import cors from 'cors'
 import Account from '../support/account.js';
 import { errors } from '../lib/index.js'; // from 'oidc-provider';
 
 const body = urlencoded({ extended: false });
+
+
+
 
 const keys = new Set();
 const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [key, value]) => {
@@ -22,6 +25,16 @@ const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [k
 });
 const { SessionNotFound } = errors;
 export default (app, provider) => {
+
+  app.use(
+    cors({
+      origin: '*',
+      methods: ['GET, POST, OPTIONS, PUT, PATCH, DELETE'],
+
+      allowedHeaders: ['Content-Type, Authorization, credentials']
+    })
+  );
+  
   app.use((req, res, next) => {
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts

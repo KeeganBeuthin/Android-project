@@ -4,6 +4,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
+import { AuthProvider } from 'react-oidc-context'
 
 import Feed from './pages/Feed';
 import Lists from './pages/Lists';
@@ -20,9 +21,17 @@ window.matchMedia("(prefers-color-scheme: dark)").addListener(async (status) => 
     });
   } catch {}
 });
-
+const oidcConfig = {
+  authority: "http://localhost:4000",
+  client_id: "client",
+  client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
+  redirect_uri: "http://localhost:3000",
+  
+};
 const AppShell = () => {
   return (
+    
+    <AuthProvider {...oidcConfig}>
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet id="main">
@@ -31,6 +40,7 @@ const AppShell = () => {
         </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>
+    </AuthProvider>
   );
 };
 

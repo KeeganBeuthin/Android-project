@@ -1,10 +1,10 @@
 export default {
   clients: [
     {
-      client_id: 'gay',
+      client_id: 'client',
       client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
-      grant_types: ['refresh_token', 'authorization_code','client_credentials'],
-      redirect_uris: ['http://sso-client.dev/providers/7/open_id', 'http://sso-client.dev/providers/8/open_id'],
+      grant_types: ['refresh_token', 'authorization_code'],
+      redirect_uris: ['http://localhost:1234','http://localhost:3000', 'http://sso-client.dev/providers/8/open_id'],
     }
   ],
   interactions: {
