@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Script from 'next/script';
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { withIonRouter } from '@ionic/react-router';
 import { setupIonicReact } from '@ionic/react';
 import { AuthProvider, useAuth } from "../src/.";
 import 'tailwindcss/tailwind.css';
@@ -23,6 +23,8 @@ import '@ionic/react/css/display.css';
 
 import '../styles/global.css';
 import '../styles/variables.css';
+
+
 
 
 function App() {
@@ -54,12 +56,9 @@ function App() {
 
 function MyApp({ Component, pageProps }) {
   
-  const auth = useAuth()
-  const router = useRouter();
-    if (!auth.isAuthenticated) {
-      router.push('/login'); 
-    }
 
+
+console.log(useAuth)
 
   return (
     

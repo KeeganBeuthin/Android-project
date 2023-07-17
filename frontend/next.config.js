@@ -5,4 +5,5 @@ module.exports = {
   },
   swcMinify: true,
   transpilePackages: ['@ionic/react', '@ionic/core', '@stencil/core', 'ionicons'],
+  
 }

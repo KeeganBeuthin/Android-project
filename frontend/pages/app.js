@@ -1,7 +1,8 @@
 import MyApp from "./_app";
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { AuthProvider, useAuth } from "../src/.";
+import { withIonRouter } from '@ionic/react-router';
+import { setupIonicReact } from '@ionic/react';
 
 const oidcConfig = {
     authority: "http://localhost:4000",
@@ -13,7 +14,7 @@ const oidcConfig = {
 
   export default function App() {
     const auth = useAuth()
-    const router = useRouter();
+ 
       if (!auth.isAuthenticated) {
         router.push('/login'); 
       }
