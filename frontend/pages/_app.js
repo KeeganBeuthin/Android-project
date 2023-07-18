@@ -1,9 +1,10 @@
 import Head from 'next/head';
 import Script from 'next/script';
 import { useEffect } from 'react';
-import { withIonRouter } from '@ionic/react-router';
+import { Router } from 'react-router'
+
 import { setupIonicReact } from '@ionic/react';
-import { AuthProvider, useAuth } from "../src/.";
+import { useAuth,AuthProvider } from '../src';
 import 'tailwindcss/tailwind.css';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -25,32 +26,51 @@ import '../styles/global.css';
 import '../styles/variables.css';
 
 
+const oidcConfig = {
+  authority: "http://localhost:4000",
+  client_id: "client",
+  client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
+  redirect_uri: "http://localhost:3000",
+  
+};
 
-
-function App() {
+function Login() {
   const auth = useAuth();
-
-  if (auth.isLoading) {
-      return <div>Loading...</div>;
-  }
-
+console.log(useAuth())
+ 
   if (auth.error) {
       return <div>Oops... {auth.error.message}</div>;
   }
 
+  if(!auth.isLoading){
+    console.log('loading')
+    return(<>
+    <h1>...Loading</h1>
+    </>)
+  }
+  if(!auth.isAuthenticated){
+    console.log('hello')
+    return(<>
+    <h1>please Login</h1>
+    <button className='blue-400' onClick={() => void auth.signinRedirect()}>Log in</button>
+    </>)
+  };
+
   if (auth.isAuthenticated) {
+    console.log('authenticated')
       return (
           <div>
-              Hello {auth.user?.profile.sub}{" "}
+              <MyApp></MyApp>
               <button onClick={() => void auth.removeUser()}>
                   Log out
               </button>
           </div>
       );
   }
-
-  return <button onClick={() => void auth.signinRedirect()}>Log in</button>;
+  console.log('here')
+  return <button onClick={() => void auth.signinRedirect()}>Log in</button>
 }
+ 
 
 
 
@@ -64,8 +84,7 @@ console.log(useAuth)
     
     <>
     
-   
-    
+  
       <Head>
         <meta
           name="viewport"
@@ -79,9 +98,22 @@ console.log(useAuth)
       ></Script>
       <Script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></Script>
      
-     
+      
     </>
   );
 }
 
-export default MyApp;
+
+
+
+function Page(){
+  return(
+  <>
+  <AuthProvider {...oidcConfig}>
+<Login/>
+</AuthProvider>
+  </>
+  )
+}
+
+export default Page

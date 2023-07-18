@@ -69,6 +69,7 @@
     "nanoid": "^4.0.2",
     "object-hash": "^3.0.0",
     "oidc-token-hash": "^5.0.3",
+    "pg": "^8.11.1",
     "quick-lru": "^6.1.1",
     "raw-body": "^2.5.2"
   },

@@ -8,18 +8,27 @@ import express from 'express'; // eslint-disable-line import/no-unresolved
 import helmet from 'helmet';
 
 import Provider from './lib/index.js'; // from 'oidc-provider';
-
+import pkg from 'pg';
 import Account from './support/account.js';
 import configuration from './support/configuration.js';
 import routes from './routes/express.js';
 
+
 const __dirname = dirname(import.meta.url);
 
-const { PORT = 4000, ISSUER = `http://localhost:${PORT}` } = process.env;
+const { PORT = 5000, ISSUER = `http://localhost:${PORT}` } = process.env;
 configuration.findAccount = Account.findAccount;
 
 const app = express();
 
+const { Client } = pkg;
+
+const pgClient = new Client({
+  user: 'rat',
+  host: '127.0.0.0',
+  database: 'accounts',
+  port: 8080, // or the appropriate port for your PostgreSQL server
+});
 
 const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
 delete directives['form-action'];
