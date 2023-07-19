@@ -16,7 +16,7 @@ import routes from './routes/express.js';
 
 const __dirname = dirname(import.meta.url);
 
-const { PORT = 5000, ISSUER = `http://localhost:${PORT}` } = process.env;
+const { PORT = 4000, ISSUER = `http://localhost:${PORT}` } = process.env;
 configuration.findAccount = Account.findAccount;
 
 const app = express();

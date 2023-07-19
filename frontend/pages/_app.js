@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Script from 'next/script';
 import { useEffect } from 'react';
-import { Router } from 'react-router'
+import {Routes, Route} from 'react-router-dom'
 
 import { setupIonicReact } from '@ionic/react';
 import { useAuth,AuthProvider } from '../src';
@@ -34,86 +34,54 @@ const oidcConfig = {
   
 };
 
+
 function Login() {
   const auth = useAuth();
-console.log(useAuth())
- 
-  if (auth.error) {
-      return <div>Oops... {auth.error.message}</div>;
-  }
 
-  if(!auth.isLoading){
-    console.log('loading')
-    return(<>
-    <h1>...Loading</h1>
-    </>)
+
+  if (!auth.isAuthenticated) {
+    console.log('hello');
+    return (
+      <>
+        <h1>please Login</h1>
+        <button className='blue-400' onClick={() => void auth.signinRedirect()}>
+          Log in
+        </button>
+      </>
+    );
   }
-  if(!auth.isAuthenticated){
-    console.log('hello')
-    return(<>
-    <h1>please Login</h1>
-    <button className='blue-400' onClick={() => void auth.signinRedirect()}>Log in</button>
-    </>)
-  };
 
   if (auth.isAuthenticated) {
-    console.log('authenticated')
-      return (
-          <div>
-              <MyApp></MyApp>
-              <button onClick={() => void auth.removeUser()}>
-                  Log out
-              </button>
-          </div>
-      );
+    console.log('authenticated');
+    return (
+      <div>
+
+        <Component {...pageProps} />
+        <Script
+          type="module"
+          src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"
+        ></Script>
+        <Script
+          nomodule=""
+          src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"
+        ></Script>
+      </div>
+    );
   }
-  console.log('here')
-  return <button onClick={() => void auth.signinRedirect()}>Log in</button>
+
+  console.log('here');
+  return <button onClick={() => void auth.signinRedirect()}>Log in</button>;
 }
- 
 
 
+export default function MyApp({ Component, pageProps }) {
 
-function MyApp({ Component, pageProps }) {
-  
-
-
-console.log(useAuth)
 
   return (
-    
-    <>
-    
-  
+    <AuthProvider {...oidcConfig}>
       <Head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-        ></meta>
       </Head>
-      <Component {...pageProps} />
-      <Script
-        type="module"
-        src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"
-      ></Script>
-      <Script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></Script>
-     
-      
-    </>
+      <Login></Login>
+    </AuthProvider>
   );
 }
-
-
-
-
-function Page(){
-  return(
-  <>
-  <AuthProvider {...oidcConfig}>
-<Login/>
-</AuthProvider>
-  </>
-  )
-}
-
-export default Page
