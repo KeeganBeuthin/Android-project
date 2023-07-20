@@ -4,8 +4,9 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
-import { AuthProvider } from 'react-oidc-context'
-
+import { useAuth,AuthProvider } from '../src';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 import Feed from './pages/Feed';
 import Lists from './pages/Lists';
 import ListDetail from './pages/ListDetail';
@@ -28,18 +29,43 @@ const oidcConfig = {
   redirect_uri: "http://localhost:3000",
   
 };
-const AppShell = () => {
-  return (
-    
-    <AuthProvider {...oidcConfig}>
-    <IonApp>
-      <IonReactRouter>
+
+function Login() {
+  const auth = useAuth();
+
+
+
+  if (auth.isAuthenticated) {
+    console.log('authenticated');
+    return (
+      <IonApp>
+  <IonReactRouter>
         <IonRouterOutlet id="main">
           <Route path="/tabs" render={() => <Tabs />} />
           <Route path="/" render={() => <Redirect to="/tabs/feed" />} exact={true} />
         </IonRouterOutlet>
       </IonReactRouter>
-    </IonApp>
+      </IonApp>
+    );
+  }
+
+  console.log(useAuth());
+  return (
+    <>
+    <h1>please Login</h1>
+  <button onClick={() => void auth.signinRedirect()}>Log in</button>
+  </>
+  )
+}
+
+
+
+
+const AppShell = () => {
+  return (
+    
+    <AuthProvider {...oidcConfig}>
+      <Login/>
     </AuthProvider>
   );
 };

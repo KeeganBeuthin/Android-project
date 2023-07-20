@@ -11,16 +11,16 @@ const api = new OpenAPIBackend({
       version: '1.0.0',
     },
     paths: {
-      '/pets': {
-        get: {
-          operationId: 'getPets',
+      '/session/store': {
+        post: {
+          operationId: 'storeSession',
           responses: {
             200: { description: 'ok' },
           },
         },
       },
       
-      '/pets/{id}': {
+      '/session/retrieve': {
         get: {
           operationId: 'getPetById',
           responses: {
@@ -66,7 +66,9 @@ const api = new OpenAPIBackend({
     },
   },
   handlers: {
-    getPets: async (c, req, res) => res.status(200).json({ operationId: c.operation.operationId }),
+    storeSession: async (c, req, res) => {
+      
+    },
     getPetById: async (c, req, res) => {
       const petNames = [{name: 'jacob'}, {name: 'garfield'}, {name: 'jerry'}];
       const petId = c.request.params.id;

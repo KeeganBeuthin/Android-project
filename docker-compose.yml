@@ -9,7 +9,8 @@ services:
  database:
   build: ./postgresDB
   ports:
-     - 8080:8080
+     - 8080:5432
+  restart: unless-stopped
  backend: 
   build: ./backend/
   ports: 

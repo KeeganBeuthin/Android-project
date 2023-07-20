@@ -24,10 +24,11 @@ const app = express();
 const { Client } = pkg;
 
 const pgClient = new Client({
-  user: 'rat',
-  host: '127.0.0.0',
-  database: 'accounts',
-  port: 8080, // or the appropriate port for your PostgreSQL server
+  user: 'postgres',
+  host: '127.0.0.1',
+  database: 'users',
+  password: 'hahaha',
+  port: 8080,
 });
 
 const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
@@ -46,8 +47,10 @@ let server;
 try {
   let adapter;
   if (process.env.MONGODB_URI) {
+    console.log('here')
     ({ default: adapter } = await import('./adapters/mongodb.js'));
-    await adapter.connect();
+    await adapter.connect('mongodb://localhost:27017');
+    console.log('mongoDB is working')
   }
 
   const prod = process.env.NODE_ENV === 'production';

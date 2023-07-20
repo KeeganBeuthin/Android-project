@@ -1,9 +1,12 @@
+
+
 export default {
   clients: [
     {
       client_id: 'client',
       client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
-      grant_types: ['refresh_token', 'authorization_code'],
+      grant_types: ['authorization_code'],
+      response_types: ['code'],
       redirect_uris: ['http://localhost:1234','http://localhost:3000', 'http://sso-client.dev/providers/8/open_id'],
     }
   ],
@@ -32,6 +35,24 @@ export default {
     revocation: { enabled: true }, // defaults to false
     clientCredentials: {
       enabled: true
+  },
+  introspection: {
+    enabled: true
+  },
+  resourceIndicators: {
+    enabled: true,
+    getResourceServerInfo(ctx, resourceIndicator) {
+        if (resourceIndicator ==='urn:api') {
+            return {
+                scope: 'read',
+                audience: 'urn:api',
+                accessTokenTTL: 1 * 60 * 60, // 1 hour
+                accessTokenFormat: 'jwt'
+            }
+        }
+
+        throw new errors.InvalidTarget();
+    }
   }
   },
   jwks: {

@@ -26,62 +26,26 @@ import '../styles/global.css';
 import '../styles/variables.css';
 
 
-const oidcConfig = {
-  authority: "http://localhost:4000",
-  client_id: "client",
-  client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
-  redirect_uri: "http://localhost:3000",
-  
-};
 
 
-function Login() {
-  const auth = useAuth();
-
-
-  if (!auth.isAuthenticated) {
-    console.log('hello');
-    return (
-      <>
-        <h1>please Login</h1>
-        <button className='blue-400' onClick={() => void auth.signinRedirect()}>
-          Log in
-        </button>
-      </>
-    );
-  }
-
-  if (auth.isAuthenticated) {
-    console.log('authenticated');
-    return (
-      <div>
-
-        <Component {...pageProps} />
-        <Script
-          type="module"
-          src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"
-        ></Script>
-        <Script
-          nomodule=""
-          src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"
-        ></Script>
-      </div>
-    );
-  }
-
-  console.log('here');
-  return <button onClick={() => void auth.signinRedirect()}>Log in</button>;
-}
 
 
 export default function MyApp({ Component, pageProps }) {
 
 
   return (
-    <AuthProvider {...oidcConfig}>
+   <>
       <Head>
       </Head>
-      <Login></Login>
-    </AuthProvider>
+      <Component {...pageProps}/>
+      <Script
+        type="module"
+        src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"
+      ></Script>
+      <Script
+        nomodule=""
+        src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"
+      ></Script>
+ </>
   );
 }
