@@ -14,8 +14,7 @@ import Settings from './pages/Settings';
 import Tabs from './pages/Tabs';
 
 setupIonicReact({});
-Oidc.Log.setLogger(console);
-Oidc.Log.setLevel(Oidc.Log.ERROR);
+
 
 
 window.matchMedia("(prefers-color-scheme: dark)").addListener(async (status) => {
@@ -29,7 +28,7 @@ const oidcConfig = {
   authority: "http://localhost:4000",
   client_id: "client",
   client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
-  redirect_uri: "http://app.example.com",
+  redirect_uri: 'http://localhost:3000',
   discovery_uri: 'http://localhost:4000/.well-known/openid-configuration'
 };
 

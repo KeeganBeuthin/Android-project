@@ -7,7 +7,7 @@ import { Redirect, Route } from 'react-router-dom';
 import { useAuth,AuthProvider } from '../src';
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import Feed from './pages/Feed';
+
 import Lists from './pages/Lists';
 import ListDetail from './pages/ListDetail';
 import Settings from './pages/Settings';
