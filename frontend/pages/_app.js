@@ -2,10 +2,10 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { useEffect } from 'react';
 import {Routes, Route} from 'react-router-dom'
-
 import { setupIonicReact } from '@ionic/react';
 import { useAuth,AuthProvider } from '../src';
 import 'tailwindcss/tailwind.css';
+import Login from '../src/Login'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -27,7 +27,13 @@ import '../styles/variables.css';
 
 
 
-
+const oidcConfig = {
+  authority: "http://localhost:4000",
+  client_id: "client",
+  client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
+  redirect_uri: "https://cnn.com",
+  
+};
 
 
 export default function MyApp({ Component, pageProps }) {
@@ -35,8 +41,10 @@ export default function MyApp({ Component, pageProps }) {
 
   return (
    <>
+ 
       <Head>
       </Head>
+  
       <Component {...pageProps}/>
       <Script
         type="module"
@@ -46,6 +54,7 @@ export default function MyApp({ Component, pageProps }) {
         nomodule=""
         src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"
       ></Script>
+
  </>
   );
 }

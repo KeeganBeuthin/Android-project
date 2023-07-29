@@ -3,5 +3,6 @@
     <string name="app_name">nextjs-tailwind-capacitor</string>
     <string name="title_activity_main">nextjs-tailwind-capacitor</string>
     <string name="package_name">com.example.app</string>
-    <string name="custom_url_scheme">com.example.app</string>
+  
+    <string name="custom_url_scheme">com.example.yourapp</string>
 </resources>

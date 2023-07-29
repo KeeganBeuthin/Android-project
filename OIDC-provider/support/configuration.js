@@ -7,7 +7,7 @@ export default {
       client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
       grant_types: ['authorization_code'],
       response_types: ['code'],
-      redirect_uris: ['http://localhost:1234','http://localhost:3000', 'http://sso-client.dev/providers/8/open_id'],
+      redirect_uris: ['http://localhost:1234','http://localhost:3000', 'http://localhost','http://app.example.com'],
     }
   ],
   interactions: {
@@ -39,6 +39,7 @@ export default {
   introspection: {
     enabled: true
   },
+  
   resourceIndicators: {
     enabled: true,
     getResourceServerInfo(ctx, resourceIndicator) {

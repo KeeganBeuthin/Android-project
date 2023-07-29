@@ -9,8 +9,9 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':byteowls-capacitor-oauth2')
     implementation project(':capacitor-status-bar')
-
+    implementation "androidx.webkit:webkit:1.4.0"
 }
 
 
