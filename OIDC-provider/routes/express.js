@@ -26,14 +26,7 @@ const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [k
 const { SessionNotFound } = errors;
 export default (app, provider) => {
 
-  app.use(
-    cors({
-      origin: '*',
-      methods: ['GET, POST, OPTIONS, PUT, PATCH, DELETE'],
 
-      allowedHeaders: ['Content-Type, Authorization, credentials']
-    })
-  );
   
   app.use((req, res, next) => {
     const orig = res.render;

@@ -31,7 +31,6 @@ const oidcConfig = {
   redirect_uri: 'http://localhost:3000',
   discovery_uri: 'http://localhost:4000/.well-known/openid-configuration'
 };
-
 function LoginButton(){
   const [isButtonClicked, setIsButtonClicked] = React.useState(false);
 
@@ -44,7 +43,7 @@ function LoginButton(){
   
   const auth = useAuth();
   console.log('auth called')
-  console.log(useAuth())
+  console.log(auth.error)
   return(
 
      <>
@@ -74,7 +73,7 @@ function Login() {
   }
 
   if (auth.isLoading){
-    console.log(useAuth())
+    return <div>Loading...</div>
   }
 
  

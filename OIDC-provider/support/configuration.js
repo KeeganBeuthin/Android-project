@@ -7,7 +7,7 @@ export default {
       client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
       grant_types: ['authorization_code'],
       response_types: ['code'],
-      redirect_uris: ['http://localhost:1234','http://localhost:3000', 'http://localhost','http://app.example.com'],
+      redirect_uris: ['http://localhost:1234','http://localhost:3000', 'http://localhost:32111','http://appauth.demo-app.io/oauth2redirect','http://net.openid.appauthdemo/oauth2redirect'],
     }
   ],
   interactions: {

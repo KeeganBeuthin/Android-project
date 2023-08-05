@@ -12,8 +12,7 @@ import pkg from 'pg';
 import Account from './support/account.js';
 import configuration from './support/configuration.js';
 import routes from './routes/express.js';
-
-
+import cors from 'cors'
 const __dirname = dirname(import.meta.url);
 
 const { PORT = 4000, ISSUER = `http://localhost:${PORT}` } = process.env;
@@ -22,7 +21,7 @@ configuration.findAccount = Account.findAccount;
 const app = express();
 
 const { Client } = pkg;
-
+app.use(cors())
 const pgClient = new Client({
   user: 'postgres',
   host: '127.0.0.1',
@@ -66,7 +65,7 @@ try {
         next();
       } else if (req.method === 'GET' || req.method === 'HEAD') {
         res.redirect(url.format({
-          protocol: 'https',
+          protocol: 'http',
           host: req.get('host'),
           pathname: req.originalUrl,
         }));

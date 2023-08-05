@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "oidc-client-ts": "^2.2.4",
+    "react-native-oidc-client": "^1.5.2",
     "react-oidc-context": "^2.2.2"
   }
 }
