@@ -3,7 +3,7 @@ import { cog, flash, list } from 'ionicons/icons';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { IonButton } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Redirect, Route } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { useAuth,AuthProvider } from '../src';
 import * as React from "react";
 import * as ReactDOM from "react-dom";
@@ -11,7 +11,8 @@ import Feed from './pages/Feed';
 import Lists from './pages/Lists';
 import ListDetail from './pages/ListDetail';
 import Settings from './pages/Settings';
-import Tabs from './pages/Tabs';
+import Home from './pages/Home';
+import Login from './pages/login';
 
 setupIonicReact({});
 
@@ -29,7 +30,6 @@ const oidcConfig = {
   client_id: "client",
   client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
   redirect_uri: 'http://localhost:3000',
-  discovery_uri: 'http://localhost:4000/.well-known/openid-configuration'
 };
 function LoginButton(){
   const [isButtonClicked, setIsButtonClicked] = React.useState(false);
@@ -53,53 +53,59 @@ function LoginButton(){
   )
 }
 
-function Login() {
+// function Login() {
  
-  const auth = useAuth()
+//   const auth = useAuth()
 
 
-  if (auth.isAuthenticated) {
-    console.log('authenticated');
-    return (
-      <IonApp>
-  <IonReactRouter>
-        <IonRouterOutlet id="main">
-          <Route path="/tabs" render={() => <Tabs />} />
-          <Route path="/" render={() => <Redirect to="/tabs/feed" />} exact={true} />
-        </IonRouterOutlet>
-      </IonReactRouter>
-      </IonApp>
-    );
-  }
+//   if (auth.isAuthenticated) {
+//     console.log('authenticated');
+//     return (
+//       <IonApp>
+//   <IonReactRouter>
+//         <IonRouterOutlet id="main">
+//           <Route path="/tabs" render={() => <Tabs />} />
+//           <Route path="/" render={() => <Redirect to="/tabs/feed" />} exact={true} />
+//         </IonRouterOutlet>
+//       </IonReactRouter>
+//       </IonApp>
+//     );
+//   }
 
-  if (auth.isLoading){
-    return <div>Loading...</div>
-  }
+//   if (auth.isLoading){
+//     return <div>Loading...</div>
+//   }
 
  
-  return (
-    <>
-    <IonApp>
-      <IonReactRouter>
-    <h1>please Login</h1>
-    <LoginButton/>
-    </IonReactRouter>
-    </IonApp>
-  </>
-  )
-}
+//   return (
+//     <>
+//     <IonApp>
+//       <IonReactRouter>
+//     <h1>please Login</h1>
+//     <LoginButton/>
+//     </IonReactRouter>
+//     </IonApp>
+//   </>
+//   )
+// }
 
 
 
 
+
+console.log(Home)
 const AppShell = () => {
   return (
-    
-    <>
-    <AuthProvider {...oidcConfig}>
-      <Login/>
-    </AuthProvider>
-    </>
+    <IonApp>
+      <IonReactRouter >
+        <IonRouterOutlet id="main">
+          <Switch>
+          <Route path="/Home" render={() => <Home/>} />
+          <Route path="/" component={Login} />
+          </Switch>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
   );
 };
 

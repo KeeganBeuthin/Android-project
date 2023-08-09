@@ -1,8 +1,35 @@
 import {OpenAPIBackend} from 'openapi-backend';;
 import express from 'express';
+import { useAuth } from 'react-oidc-context'; 
+import { GoogleApis } from 'googleapis';
+import cors from 'cors'
+
+const google = new GoogleApis()
+
 const app = express();
 app.use(express.json());
-// define api
+
+const oauth2Client = new google.auth.OAuth2(
+  '48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com',
+  ' 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',
+  'http://localhost:9000'
+);
+
+
+const gmail = google.gmail({
+  version: 'v1',
+  auth: oauth2Client
+})
+app.use(
+  cors({
+    origin: ["http://localhost:3000/login", "http://localhost:3000/home", "http://localhost:3000",],
+    methods: ['GET, POST, OPTIONS, PUT, PATCH, DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type, Authorization, credentials']
+  })
+);
+
+
 const api = new OpenAPIBackend({
   definition: {
     openapi: '3.0.0',
@@ -11,80 +38,48 @@ const api = new OpenAPIBackend({
       version: '1.0.0',
     },
     paths: {
-      '/session/store': {
-        post: {
-          operationId: 'storeSession',
-          responses: {
-            200: { description: 'ok' },
-          },
-        },
-      },
-      
-      '/session/retrieve': {
-        get: {
-          operationId: 'getPetById',
-          responses: {
-            200: { description: 'ok' },
-          },
-
-        },
-        parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: {
-              type: 'integer',
-            },
-          },
-        ],
-      },
-      '/users': {
-        get: {
-          operationId: 'getUsers',
-          responses: {
-            200: { description: 'ok' },
-          },
-        },
-      },
-      '/users/create':{
-        post: {
-          operationId: 'createUser',
-          responses:{
-            200:{description: 'account created'}
+    '/api/mail':{
+      get:{
+        operationId: 'getUserMail',
+        responses:{
+          200:{description:'ok', 
+          content: {
+            'application/json':{
+            }
           }
         }
-      },
-      '/user/get':{
-        get:{
-          operationId: 'getUser',
-          responses: {
-            200:{description:'user retrieved'}
-          }
         }
       }
+    },
+    '/api/store/user':{
+      post:{
+        operationId: 'storeUser',
+        requestBody: {
+          content: {
+            'application/json': {
+            }
+          }
+        },
+        responses: {
+          200: {description: 'ok'}
+        }
+      }
+    }
     },
   },
   handlers: {
-    storeSession: async (c, req, res) => {
+    getUserMail: async (c, req, res) => {
+      console.log(req.body)
+      const {token} = req.body.token
       
+      const user = await gmail.users.getProfile({
+        userId: 'me',
+        auth: oauth2Client
+      })
+      const userId = user.data.emailAddress;
+      console.log('gmail User ID:', userId)
+      return res.status(200).json(user)
     },
-    getPetById: async (c, req, res) => {
-      const petNames = [{name: 'jacob'}, {name: 'garfield'}, {name: 'jerry'}];
-      const petId = c.request.params.id;
-      const petName = petNames[petId - 1]?.name;
-    
-      if (!petName) {
-        return res.status(404).json({ error: 'Pet not found' });
-      }
-    
-      const responseData = {
-        operationId: c.operation.operationId,
-        name: petName
-      };
-      
-      return res.status(200).json(responseData);
-    } ,
     validationFail: async (c, req, res) => res.status(400).json({ err: c.validation.errors }),
     notFound: async (c, req, res) => res.status(404).json({ err: 'not found' }),
 

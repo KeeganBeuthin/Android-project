@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { notificationsOutline } from 'ionicons/icons';
 import { getHomeItems } from '../../store/selectors';
 import Store from '../../store';
-
+const key = 'AIzaSyCWpihtAOF5zsSrtPdnTbvhGOTwlnWnrLI'
 const FeedCard = ({ title, type, text, author, authorAvatar, image }) => (
   <Card className="my-4 mx-auto">
     <div className="h-32 w-full relative">
@@ -45,7 +45,7 @@ const Feed = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Feed</IonTitle>
+          <IonTitle>Inbox</IonTitle>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
