@@ -23,9 +23,10 @@ const INITIAL_STATE = {
 
 const options ={
   method: "Get",
-headers: {'Content-Type': 'application/json', 'credentials': 'include',
+headers: {'Content-Type': 'application/json',
+ 'credentials': 'include',
+ 'authorization': 'include'
 },
-body: JSON.stringify()
 }
 
 
@@ -49,7 +50,6 @@ class Home extends Component {
   }
 
   async getUserInfo() {
-    console.log(this.props.location.state.token)
     this.setState({
       user: {
         name: this.props.location.state.name,
@@ -62,7 +62,6 @@ class Home extends Component {
   
   async getMail(){
     console.log(this.props.location.state.token)
-    console.log(options)
   const mail= await fetch(`http://localhost:9000/api/mail`,options, )
   console.log(mail)
   }

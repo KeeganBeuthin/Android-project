@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "sodium-bliss-395109",
+  "private_key_id": "f28351878abe16aa96db6a0b0f0634ec36b082e7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDImopQsdlnKnHJ\n2rjZewxTvk+7buZImKGF+Yy9+6zkZa79z+pAMfh+kQqiohTAN4/0+5hAORLw4E3X\n1hWCtRBTww3DWl+gJlDN3vOs63To7PItMUK2TWzynk5Vu7ZJaVhONopC5x9FPpNa\nFFXEeENHITqVPzVcCWXftUcDrUZydRJLqnOpQQpktW13vhbUR2ToiBAoYxWCjtvL\ndue0q/rqH8TeaNR66uKpilw/L0nU80ndxZLVYggIOpJ36+LOqJ+zhxneQSYx9gVp\n81p73dp3qeLAsapoN0b3Oo43LWu0tfnKq0Zbp3yXhFdrHKn/P8Sj/NsTuCYyL87n\nFDkwo2tJAgMBAAECggEAHE6AT4A1IQNigJ0KQfgExolfh1+QA7Tz7+uFkmZh4G2/\nymVtFOdoPPXbBhVwb6o3eFaLRp63H0HLgjYdnW7O0b7/oW4OedMGSnKYOHGWMusC\nhmGB3CcjRT4U6DCfeY7xrMGx81xZM4RvtwGRE7LzrWURNu+vKCBUXYOfNHPeMba2\nusPh8oZZdVSDTOM0CSmSDIt+YgF7HVNfx/ceIjn75tjLsm01xVIDzKEDs7+6jvRM\nn9ylcg42n8sFs8a04FgZfPxqWShRDd1lZIbsc1zU4BU6bkORdbyk+eeG9fiUrB1U\n2k892HgWI+gpjWCB3x20MsybJKUeLkRDQW+NlhEmPQKBgQD092iZ78h04Z6Z82m/\n7fzzmev1HGCF2mPtg+V3GgIOp+GaL9rC7wSJOteq13l3rli/7zZvRgvcBpU0Iw1E\n2wZvGJJ6t/BEC2Q1KyZr6Y5mmKvlpEjsB8+CLK0QKicmxkKgFA4zJ+qqKGqEVX6Q\n5xAnY1b6eFTAYkkewFG6DnhbvQKBgQDRo5sSaekV96IGDAdNKn9PZlwwYFBKP6Vq\nYl4UTvL5JIb4YjkpP6sbDZRWRHAWWu1nZoi8WrN2rDF4Ixlh7YtJjTwTFqgwF6Zv\nx/qWdt6JUgRAYSM/aOFUgpCDdLb4Ep/dWmaekf279oWSkcrTb2lC13lb1c/LAiOr\n/JO6APMgfQKBgFxdmVRJxFTF6a50yI/05WbYx86RF5gA46LgE7qX1OS/ymH/30WX\nKCeyRzWEr6k/1Pjx8p18VOZumP2ipdMrnr5vDnQ1POP7Q5qEnaUc2HO45z/cdR6C\nR2z2+X5Z1o9ZPC/tv/jr+SCVwqwJLILojP+9BkPE8Xfk11s/+tDjueAlAoGAf0bS\nRlqw3dprrzosUKhFhQJDZEeFV57Oogk4zyGjmKmZnEGeLLHwA0u6TKneV2Q7EHUK\n/TggDyO6IRNGPNNIpo4t8/TkhdZGAUWrmSBwOXTnCeMv0Dav32wpqvX4hCJilrRk\n6079etnP/M2xE69ne+JwVtY4Ayu4VpnRYrNi6M0CgYEAsgTecf6w/SldO908HKeg\neLwYpo6L5k+YlldwfBL3dEgLjZ565lxmhi6GiI9+01TknQ6faiiCztTqak+m0zP3\nb2Ff8N5k0gs+Dnwk4+h/Qy0+hF+yHFy+gbAeWTaWWxKVBFpc/5meIZIGgSxplJAb\nmQWmx0RqbqoAFFBkCnYOG60=\n-----END PRIVATE KEY-----\n",
+  "client_email": "service-account@sodium-bliss-395109.iam.gserviceaccount.com",
+  "client_id": "116365515930241978865",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/service-account%40sodium-bliss-395109.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

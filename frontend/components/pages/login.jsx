@@ -11,7 +11,7 @@ import "@codetrix-studio/capacitor-google-auth";
   // src/services/gmail-authentication.js
   GoogleAuth.initialize({
     clientId: '48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com',
-    scopes: ['profile', 'email'],
+    scopes: [' https://mail.google.com/'],
     grantOfflineAccess: true,
   });
 

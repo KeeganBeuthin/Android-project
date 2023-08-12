@@ -31,6 +31,33 @@ const oidcConfig = {
   client_secret: '8535thldsfjgh09p34yoisvldfsgbljr',
   redirect_uri: 'http://localhost:3000',
 };
+
+
+class MyErrorBoundary extends React.Component {
+  state = {
+    hasError: false,
+  };
+  
+  static getDerivedStateFromError(error) {
+    return {hasError: true};
+  };
+  componentDidCatch(error, errorInfo) {
+    // A custom error logging function
+    logError(error, errorInfo);
+  };
+  render() {
+    return this.state.hasError ? <FallbackUI /> : this.props.children;
+  }
+}
+
+function FallbackUI(){
+
+  <IonLabel>Error</IonLabel>
+  console.log('dead')
+}
+
+
+
 function LoginButton(){
   const [isButtonClicked, setIsButtonClicked] = React.useState(false);
 
@@ -96,6 +123,7 @@ function LoginButton(){
 console.log(Home)
 const AppShell = () => {
   return (
+    <MyErrorBoundary>
     <IonApp>
       <IonReactRouter >
         <IonRouterOutlet id="main">
@@ -106,6 +134,7 @@ const AppShell = () => {
         </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>
+    </MyErrorBoundary>
   );
 };
 
