@@ -6,8 +6,8 @@ import Card from '../ui/Card';
 import { IonContent, IonText, IonRow, IonCol, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonImg } from '@ionic/react';
 import { Plugins } from '@capacitor/core';
 import "@codetrix-studio/capacitor-google-auth";
-
-
+import { useHistory } from 'react-router-dom'
+import { withRouter } from 'react-router-dom';
   // src/services/gmail-authentication.js
   GoogleAuth.initialize({
     clientId: '48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com',
@@ -20,7 +20,7 @@ import "@codetrix-studio/capacitor-google-auth";
 
 
   };
-
+ 
   class Login extends Component {
     constructor(props) {
       super(props);
@@ -28,17 +28,26 @@ import "@codetrix-studio/capacitor-google-auth";
     }
   
     async signIn() {
-      const { history } = this.props;
-      console.log(history)
+      const {history} = this.props
       const result = await GoogleAuth.signIn();
+    
       console.info('result', result);
+
+      const options ={
+        method: "Post",
+        headers: {'Content-Type': 'application/json',
+         'credentials': 'include',
+         'authorization': 'include'
+        },
+        body: JSON.stringify(result)
+      }
+    
+       
+    
       if (result) {
-        console.log('pushing')
-        history.push({
-          pathname: '/Home',
-          state: { name: result.givenName, image: result.imageUrl, email: result.email, token: result.authentication.accessToken }
-          
-        });
+        const store = await fetch('/api/store',options)
+        console.log(store)
+      ;
       }
     }
   
@@ -67,7 +76,7 @@ import "@codetrix-studio/capacitor-google-auth";
     }
   }
   
-  export default Login;
+  export default withRouter(Login);
 
 
 

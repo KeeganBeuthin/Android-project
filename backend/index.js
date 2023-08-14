@@ -5,23 +5,31 @@ import { GoogleApis } from 'googleapis';
 import cors from 'cors'
 import postgres from 'postgres';
 import key from './Private_key.json' assert { type: "json" }
-
-
-
+import RedisStore from 'connect-redis';
+import session from 'express-session';
+import { createClient } from 'redis';
 const service = 'service-account@sodium-bliss-395109.iam.gserviceaccount.com'
+
 const sql = postgres('postgres://postgres:hahaha@127.0.0.1:8080/rat')
 const google = new GoogleApis()
 
 const app = express();
 app.use(express.json());
 
+let redisClient = createClient()
+redisClient.connect().catch(console.error)
+
 const jwtClient = new google.auth.JWT({
   email: key.client_email,
   key: key.private_key,
   scopes: ['https://www.googleapis.com/auth/gmail.addons.current.action.compose', 'https://www.googleapis.com/auth/gmail.addons.current.message.action']
-}
+});
 
-);
+
+let redisStore = new RedisStore({
+  client: redisClient,
+  prefix: "SessionStore:",
+})
 
 
 const gmail = google.gmail({
@@ -36,6 +44,16 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization', 'credentials']
   })
 );
+app.set('trust proxy', 1)
+
+app.use(session({
+  name: 'info',
+  store: redisStore,
+  secret: 'sexxx',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge:360000000, path:'/', sameSite:'lax', httpOnly:true, secure: false},
+}));
 
 
 const api = new OpenAPIBackend({
@@ -62,11 +80,11 @@ const api = new OpenAPIBackend({
 
       }
     },
-    '/api/store/user':{
+    '/api/store':{
       post:{
-        operationId: 'storeUser',
+        operationId: 'storeData',
         responses: {
-          200: {description: 'ok'}
+          200: {description: 'gamertime'}
         },
         requestBody: {
           content: {
@@ -136,7 +154,9 @@ const api = new OpenAPIBackend({
   handlers: {
     getUserMail: async (c, req, res) => {
       console.log(req)
-      
+
+      const id = await sql`
+      `
       const user = await gmail.users.messages.list({
         userId: 'me',
       })
@@ -149,12 +169,50 @@ const api = new OpenAPIBackend({
     console.log(test)
     return res.status(200).json(test)
     },
-    storeToken: async (c, req, res) => {
-      console.log(req.body)
-      const token = req.requestBody
+    storeData: async (c, req, res) => {
 
-      const store = hi
+     console.log('hit')
 
+     async function checkExpiredTokens(){
+      const currentTime= new Date()
+      const clearTokens = await sql `Delete From tokens where expires_at < ${currentTime}
+      `
+     }
+
+      function calculateExpirationTime() {
+        const currentTime = new Date();
+        const expirationTime = new Date(currentTime.getTime() + 60 * 60 * 1000); // Adding 60 minutes in milliseconds
+      
+        return expirationTime;
+      }
+console.log(req.session.id)
+      const expirationTime = calculateExpirationTime();
+      const token = req.body.authentication.accessToken
+      const email = req.body.email
+      const username = req.body.name
+      const image= req.body.imageUrl
+      const id = req.body.id
+
+    const tokenCheck = await sql`select access_token from tokens where user_id=${id}`
+    const userCheck = await sql`select email from accounts where email=${email}`
+
+    if(tokenCheck && userCheck){
+      return res.status(200).json({success: 'user found '})
+    }
+
+    if (!tokenCheck && userCheck){
+      const storeOnlyToken = await sql`insert into tokens(access_token,expires_at,created_at,user_id) m qwv 1  VALUES (${token},${expirationTime},now(),${id})
+      `
+      return res.status(200).json({success: 'user found and token stored'})
+    }
+      const storeToken = await sql`insert into tokens(access_token,expires_at,created_at,user_id)  VALUES (${token},${expirationTime},now(),${id})
+      `
+      const storeUser = await sql`insert into accounts(username,created_on,email,id,image_url) VALUES (${username},now(),${email},${id},${image})
+      `
+      req.session.userEmail = email
+      res.send('User email stored in session')
+      
+     return res.status(200).json({success: 'token and user data stored'})
     },
     validationFail: async (c, req, res) => res.status(400).json({ err: c.validation.errors }),
     notFound: async (c, req, res) => res.status(404).json({ err: 'not found' }),

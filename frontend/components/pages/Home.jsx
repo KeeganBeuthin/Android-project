@@ -10,12 +10,6 @@ import Lists from './Lists';
 import ListDetail from './ListDetail';
 import Settings from './Settings';
 import Login from './login';
-
-GoogleAuth.initialize({
-  clientId: '48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com',
-  scopes: ['profile', 'email'],
-  grantOfflineAccess: true,
-});
 const INITIAL_STATE = {
   loggedIn: true,
   user: {}
@@ -27,6 +21,7 @@ headers: {'Content-Type': 'application/json',
  'credentials': 'include',
  'authorization': 'include'
 },
+
 }
 
 
@@ -38,17 +33,16 @@ class Home extends Component {
   }
 
 
-
-  componentDidMount() {
-    this.getUserInfo();
-  }
  
   async signOut() {
     const { history } = this.props;
     await GoogleAuth.signOut();
     history.goBack();
   }
-
+async retrieveUser(){
+  console.log(id)
+  const id = this.props.location.state.id
+}
   async getUserInfo() {
     this.setState({
       user: {
@@ -61,8 +55,15 @@ class Home extends Component {
   }
   
   async getMail(){
-    console.log(this.props.location.state.token)
-  const mail= await fetch(`http://localhost:9000/api/mail`,options, )
+    const options ={
+      method: "Get",
+    headers: {'Content-Type': 'application/json',
+     'credentials': 'include',
+     'authorization': 'include'
+    },
+    }
+   
+  const mail= await fetch(`/api/mail`,options, )
   console.log(mail)
   }
   render() {
