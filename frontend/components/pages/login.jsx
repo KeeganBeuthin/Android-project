@@ -8,13 +8,15 @@ import { Plugins } from '@capacitor/core';
 import "@codetrix-studio/capacitor-google-auth";
 import { useHistory } from 'react-router-dom'
 import { withRouter } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
   // src/services/gmail-authentication.js
   GoogleAuth.initialize({
     clientId: '48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com',
     scopes: [' https://mail.google.com/'],
     grantOfflineAccess: true,
   });
-
+  const isAndroid = Capacitor.getPlatform() === 'android';
+  console.log(isAndroid)
   const INITIAL_STATE = {
 
 
@@ -35,18 +37,24 @@ import { withRouter } from 'react-router-dom';
 
       const options ={
         method: "Post",
-        headers: {'Content-Type': 'application/json',
-         'credentials': 'include',
-         'authorization': 'include'
-        },
+        headers: {'Content-Type': 'application/json', 'credentials': 'include',},
         body: JSON.stringify(result)
       }
     
-       
+      let apiUrl;
+
+      if (isAndroid) {
+        // Android direct API call
+        apiUrl = 'http://192.168.39.115:9000/api/store';
+      } else {
+        // Browser reverse proxy
+        apiUrl = '/api/store'; 
+      }
+      
     
       if (result) {
-        const store = await fetch('/api/store',options)
-        console.log(store)
+         await fetch(apiUrl,options)
+        history.push('/Home')
       ;
       }
     }
@@ -69,6 +77,7 @@ import { withRouter } from 'react-router-dom';
               <h2 className='ion-text-center'>Gamer Mail</h2>
               <IonImg src="https://i.ibb.co/CwsqWsZ/raern.png"></IonImg>
               <IonButton className="login-button" onClick={() => this.signIn()} expand="block" fill="solid" color="primary">Login</IonButton>
+              
             </IonContent>
           </IonPage>
         </>

@@ -5,24 +5,21 @@ import { IonReactRouter } from '@ionic/react-router';
 import { cog, flash, list, eye } from 'ionicons/icons';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { withRouter } from 'react-router-dom';
-
+import { Capacitor } from '@capacitor/core';
 import Lists from './Lists';
 import ListDetail from './ListDetail';
 import Settings from './Settings';
 import Login from './login';
+
+
+const isAndroid = Capacitor.getPlatform() === 'android';
+
+
 const INITIAL_STATE = {
   loggedIn: true,
   user: {}
 };
 
-const options ={
-  method: "Get",
-headers: {'Content-Type': 'application/json',
- 'credentials': 'include',
- 'authorization': 'include'
-},
-
-}
 
 
 class Home extends Component {
@@ -39,19 +36,48 @@ class Home extends Component {
     await GoogleAuth.signOut();
     history.goBack();
   }
-async retrieveUser(){
-  console.log(id)
-  const id = this.props.location.state.id
-}
-  async getUserInfo() {
-    this.setState({
-      user: {
-        name: this.props.location.state.name,
-        image: this.props.location.state.image,
-        email: this.props.location.state.email,
-        AccessToken: this.props.location.state.token
+
+  async componentDidMount() {
+    
+
+    await this.getUserData();
+  }
+
+ async getUserData() {
+    try {
+      const options = {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'credentials': 'include',
+          'authorization': 'include'
+        },
+      };
+      let apiUrl;
+
+      if (isAndroid) {
+        // Android direct API call
+        apiUrl = 'http://192.168.39.115:9000/api/user';
+      } else {
+        // Browser reverse proxy
+        apiUrl = '/api/user'; 
       }
-    });
+
+      const response = await fetch(apiUrl, options);
+
+      if (response.ok) {
+        const userData = await response.json();
+        const userInfo = userData.userInfo[0]
+      
+        const email = userInfo.email
+     
+       this.setState({ user: userInfo });
+      } else {
+        console.error('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
   }
   
   async getMail(){
@@ -66,14 +92,34 @@ async retrieveUser(){
   const mail= await fetch(`/api/mail`,options, )
   console.log(mail)
   }
+
+  async Inbox(){
+    const {history} = this.props
+    history.push('/Inbox')
+  }
+
+  async Test(){
+    const options ={
+      method: "Get",
+    headers: {'Content-Type': 'application/json',
+     'credentials': 'include',
+     'authorization': 'include'
+    },
+    }
+
+    const mailTest = await fetch('/api/store/token', options)
+    console.log(mailTest)
+  }
   render() {
-    console.log('I am present')
+   
+    const { user } = this.state;
+
     return (
       <IonPage>
       <IonPage>
         <IonHeader>
           <IonToolbar color="primary">
-            <IonTitle>Logged in ... </IonTitle>
+            <IonTitle>Logged in</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
@@ -81,19 +127,19 @@ async retrieveUser(){
           <IonRow>
             <IonCol className="text-center">
               <IonText className="title">
-                You are logged in !
+           
               </IonText>
             </IonCol>
           </IonRow>
 
-          {this.state.user.name &&
+          {user.username &&
             <IonItem>
               <IonThumbnail slot="start">
-                <img src={this.state.user.image} alt="User" />
+                <img src={user.image_url} alt="User" />
               </IonThumbnail>
               <IonLabel>
-                <h3>{this.state.user.name}</h3>
-                <p>{this.state.user.email}</p>
+                <h3>{user.username}</h3>
+                <p>{user.email}</p>
               </IonLabel>
             </IonItem>
           }
@@ -102,8 +148,12 @@ async retrieveUser(){
             Logout from Google
           </IonButton>
           
-          <IonButton  onClick={() => this.getMail()} expand="full" fill="solid" color="primary">
+          <IonButton  onClick={() => this.Inbox()} expand="full" fill="solid" color="primary">
             mail
+          </IonButton>
+
+          <IonButton  onClick={() => this.Test()} expand="full" fill="solid" color="tertiary">
+            test
           </IonButton>
         </IonContent>
       </IonPage>

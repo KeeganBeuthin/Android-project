@@ -7,8 +7,13 @@ export default (req, res) => {
   console.log('proxy')
 
     proxy.once("error", reject);
-
-    proxy.web(req, res);
+    
+   
+    
+    proxy.web(req, res,{
+      changeOrigin: true
+    });
+    console.log(res.headers)
   });
 };
 

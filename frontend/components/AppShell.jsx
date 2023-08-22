@@ -13,7 +13,7 @@ import ListDetail from './pages/ListDetail';
 import Settings from './pages/Settings';
 import Home from './pages/Home';
 import Login from './pages/login';
-
+import Inbox from './pages/Inbox'
 setupIonicReact({});
 
 
@@ -123,11 +123,12 @@ function LoginButton(){
 console.log(Home)
 const AppShell = () => {
   return (
-    <MyErrorBoundary>
+    <MyErrorBoundary> 
     <IonApp>
       <IonReactRouter >
         <IonRouterOutlet id="main">
           <Switch>
+          <Route path="/Inbox" render={() => <Inbox/>} />
           <Route path="/Home" render={() => <Home/>} />
           <Route path="/" component={Login} />
           </Switch>
