@@ -22,7 +22,7 @@ import { Capacitor } from '@capacitor/core';
 
 
   };
- 
+
   class Login extends Component {
     constructor(props) {
       super(props);

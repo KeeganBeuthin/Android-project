@@ -11,7 +11,8 @@ import ListDetail from './ListDetail';
 import Settings from './Settings';
 import Login from './login';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchEmailsSuccess, fetchEmailsFailure } from '../../android/inboxSlice'
+
+import { connect } from 'react-redux';
 
 
 
@@ -33,14 +34,7 @@ class Inbox extends Component {
   }
 
 
-  async getMail() {
-
- 
-    
-    
-      useEffect(() => {
-        async function fetchEmails() {
-          try {
+  async getMail() {    
             const options ={
               method: "Get",
             headers: {'Content-Type': 'application/json',
@@ -55,7 +49,7 @@ class Inbox extends Component {
       const mailData = mailDataPromise.messageIds
         console.log(mailData)
       
-              const fetchedEmails = [];
+      
               for (const emails of mailData) {
                 const options2 ={
                   method: "post",
@@ -67,18 +61,14 @@ class Inbox extends Component {
                 }
                 const emailContent = await fetch('/api/mail/content', options2);
                 const emailData = await emailContent.json();
-                fetchedEmails.push(emailData);
+            
               }
       
-              dispatch(fetchEmailsSuccess(fetchedEmails));
-            } else {
-              dispatch(fetchEmailsFailure('Failed to retrieve emails'));
-            }
-          } catch (error) {
-            dispatch(fetchEmailsFailure('Error fetching emails'));
-          }
-        }
-      }, [dispatch]);}
+             
+            } 
+        
+        
+      }
 
  
   async signOut() {
@@ -118,7 +108,7 @@ class Inbox extends Component {
       
         const email = userInfo.email
      
-       this.setState({ user: userInfo }); // Update the component state with user data
+       this.setState({ user: userInfo });
       } else {
         console.error('Failed to fetch user data');
       }
@@ -132,7 +122,7 @@ class Inbox extends Component {
 
   render() {
    
-    const { user, email } = this.state;
+    const { user} = this.state;
 
     return (
       <IonPage>
@@ -181,78 +171,3 @@ class Inbox extends Component {
 
 export default withRouter(Inbox);
 
-
-
-
-// const Tabs = () => {
-//   return (
-//     <IonTabs>
-//       <IonRouterOutlet>
-//         <Route path="/tabs/settings" render={() => <Settings />} exact={true} />
-//         <Route path="/tabs/inbox" render={() => <Inbox />} exact={true} />
-//       </IonRouterOutlet>
-//       <IonTabBar slot="bottom">
-//         <IonTabButton tab='tab4' href='/tabs/inbox'>
-//         <IonIcon icon={eye}/>
-//         <IonLabel>Inbox</IonLabel>
-//         </IonTabButton>
-//         <IonTabButton tab="tab3" href="/tabs/settings">
-//           <IonIcon icon={cog} />
-//           <IonLabel>Settings</IonLabel>
-//         </IonTabButton>
-//       </IonTabBar>
-//     </IonTabs>
-//   );
-// };
-
-
-
-useEffect(() => {
-  async function fetchEmails() {
-    try {
-      const options ={
-        method: "Get",
-      headers: {'Content-Type': 'application/json',
-       'credentials': 'include',
-       'authorization': 'include'
-      },
-      }
-
-      const response = await fetch(`/api/mail`, options);
-      if (response.ok) {
-        const mailDataPromise = await response.json(); 
-const mailData = mailDataPromise.messageIds
-  console.log(mailData)
-
-        const fetchedEmails = [];
-        for (const emails of mailData) {
-          const options2 ={
-            method: "post",
-          headers: {'Content-Type': 'application/json',
-           'credentials': 'include',
-           'authorization': 'include'
-          },
-          body: JSON.stringify({emails})
-          }
-          const emailContent = await fetch('/api/mail/content', options2);
-          const emailData = await emailContent.json();
-          fetchedEmails.push(emailData);
-        }
-
-        // Dispatch actions using Redux Toolkit's action creators
-        dispatch(fetchEmailsSuccess(fetchedEmails));
-      } else {
-        dispatch(fetchEmailsFailure('Failed to retrieve emails'));
-      }
-    } catch (error) {
-      dispatch(fetchEmailsFailure('Error fetching emails'));
-    }
-  }
-}, [dispatch]);
-
-// async componentDidMount() {
-    
-
-//   await this.getUserData();
-// await this.getMail()
-// }

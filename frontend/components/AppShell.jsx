@@ -13,6 +13,8 @@ import ListDetail from './pages/ListDetail';
 import Settings from './pages/Settings';
 import Home from './pages/Home';
 import Login from './pages/login';
+import { Provider } from 'react-redux';
+import store from '../android/redux/redux'
 import Inbox from './pages/Inbox'
 setupIonicReact({});
 
@@ -123,6 +125,7 @@ function LoginButton(){
 console.log(Home)
 const AppShell = () => {
   return (
+
     <MyErrorBoundary> 
     <IonApp>
       <IonReactRouter >
@@ -136,6 +139,7 @@ const AppShell = () => {
       </IonReactRouter>
     </IonApp>
     </MyErrorBoundary>
+
   );
 };
 
