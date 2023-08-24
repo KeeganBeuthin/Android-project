@@ -125,7 +125,7 @@ function LoginButton(){
 console.log(Home)
 const AppShell = () => {
   return (
-
+  <Provider store={store}>
     <MyErrorBoundary> 
     <IonApp>
       <IonReactRouter >
@@ -139,7 +139,7 @@ const AppShell = () => {
       </IonReactRouter>
     </IonApp>
     </MyErrorBoundary>
-
+    </Provider>
   );
 };
 

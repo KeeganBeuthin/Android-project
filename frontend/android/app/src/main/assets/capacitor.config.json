@@ -13,7 +13,8 @@
 				"profile",
 				"email"
 			],
-			"serverClientId": "48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com"
+			"serverClientId": "48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com",
+			"forceCodeForRefreshToken": true
 		}
 	},
 	"cordova": {}

@@ -104,6 +104,16 @@ const api = new OpenAPIBackend({
     '/api/mail':{
       get: {
         operationId: 'getUserMail',
+        "parameters": [
+          {
+            "name": "pageToken",
+            "in": "query",
+            "description": "Token for pagination of results",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         responses: {
           200: {description: 'ok',
         content: {
@@ -410,13 +420,15 @@ console.log('duplicate')
     },
     getUserMail: async (c, req, res) => {
       const session = req.session.id
-
+      const { pageToken } = req.query
       const sessionData = await redisClient.get(`SessionStore:${session}`)
 
       const sessionObject = JSON.parse(sessionData)
 
       const id= sessionObject.userId
     console.log(id)
+
+
      const tokenRecord  = await sql `select access_token from tokens where user_id=${id}` 
 
      const token = tokenRecord[0].access_token; 
@@ -424,7 +436,8 @@ console.log('duplicate')
      console.log(token)
      const mailResponse= await gmail.users.messages.list({
       userId: id,
-      maxResults: 20,
+      maxResults: 10,
+      pageToken: pageToken,
       labelIds: ['INBOX'],
       headers: {
         Authorization: `Bearer ${token}`,
@@ -434,8 +447,9 @@ console.log('duplicate')
     
      const messages = mailResponse.data.messages || [];
     const messageIds = messages.map(message => message.id);
+    const nextPageToken = mailResponse.data.nextPageToken;
     console.log(messageIds)
-   return res.status(200).json({messageIds}); 
+   return res.status(200).json({messageIds, nextPageToken}); 
 
     },
     getMailContent: async (c, req, res) => {
