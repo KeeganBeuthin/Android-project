@@ -457,13 +457,13 @@ console.log('duplicate')
       const mailData = req.body
       const mailId = mailData.emails
 
-      console.log(mailId)
+   
       const session = req.session.id
       const sessionData = await redisClient.get(`SessionStore:${session}`)
       const sessionObject = JSON.parse(sessionData)
 
       const id= sessionObject.userId
-      console.log(id)
+     
 
       const tokenRecord  = await sql `select access_token from tokens where user_id=${id}` 
 
@@ -488,7 +488,7 @@ console.log('duplicate')
        const date = dateHeader ? dateHeader.value : 'Date not found';
        
       
-      const emailContent = {date, subject, snippet}
+      const emailContent = {date, subject, snippet, mailId}
       console.log(emailContent)
        return res.status(200).json({emailContent})
 

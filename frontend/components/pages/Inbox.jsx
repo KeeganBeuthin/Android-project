@@ -1,6 +1,6 @@
 import { Redirect, Route } from 'react-router-dom';
-import { IonContent, IonText, IonRow, IonItem, IonThumbnail, IonLabel, IonCol, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonImg, IonGrid } from '@ionic/react';
-import React, { Component, useEffect, useState } from 'react';
+import { IonContent, IonText, IonRow, IonItem, IonThumbnail, IonLabel, IonCol, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonImg, IonGrid,IonButtons,IonMenuButton, IonModal, IonInput } from '@ionic/react';
+import React, { Component, useEffect, useState, useRef } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
 import { cog, flash, list, eye } from 'ionicons/icons';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
@@ -13,9 +13,8 @@ import Login from './login';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmailsRequest, fetchEmailsSuccess, fetchEmailsFailure } from '../../android/redux/inboxSlice';
 import { connect } from 'react-redux';
-
-
-
+import { useHistory } from 'react-router-dom';
+import EmailForm from './popup';
 const isAndroid = Capacitor.getPlatform() === 'android';
 
 
@@ -27,6 +26,7 @@ const INITIAL_STATE = {
 const ITEMS_PER_PAGE = 10; 
 
 
+
 const Inbox = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
@@ -34,8 +34,17 @@ const Inbox = () => {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [emailPages, setEmailPages] = useState([]);
   const [allEmails, setAllEmails] = useState([]); 
+  const [modal, setModal] = useState(null);
+  const [input, setInput] = useState(null);
+  const [message, setMessage] = useState(
+    'This modal example uses triggers to automatically open a modal when the button is clicked.'
+  );
+ const history = useHistory()
+ 
 
+ const emails = useSelector(state => state.inbox.emails);
 
+ console.log(emails)
 
     async function fetchEmails(pageToken) {
 
@@ -153,14 +162,12 @@ const Inbox = () => {
 
 
 
-  const emails = useSelector(state => state.inbox.emails);
 
 
 
     async function signOut() {
-      const { history } = this.props;
       await GoogleAuth.signOut();
-      history.goBack();
+      history.push('/home');
     }
 
 
@@ -187,76 +194,139 @@ const loadNextPage = async () => {
     setCurrentPage(currentPage + 1);
   }
 };
+const sendMail = () => {
+  
+  history.push('/send');
+};
 
 const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
 
   
   const emailsToShow = emailPages[currentPage - 1] || [];
+  
+  
+
+ 
+
+  function confirm() {
+    modal.dismiss(input.value, 'confirm');
+  }
+
+  function onWillDismiss(ev) {
+    if (ev.detail.role === 'confirm') {
+      setMessage(`Hello, ${ev.detail.data}!`);
+    }
+  }
 
   return (
-    
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle className='text-center'>Inbox</IonTitle>
-          <IonItem  color="primary">
+    <IonHeader>
+      <IonToolbar color="primary">
+        <IonTitle className='text-center'>Inbox</IonTitle>
+        <IonItem color="primary">
           <img src={userData.image_url} alt="User" />
           <IonLabel className='ion-padding-start'>
-              <h3>{userData.username}</h3>
-              <p>{userData.email}</p>
-            </IonLabel>
-            
-            <IonButton className="login-button" onClick={() => signOut()}  fill="solid" color="danger">
-         home
-        </IonButton>
-        <IonButton className="login-button" onClick={() => fetchEmails()}  fill="solid" color="tertiary">
-         mail
-        </IonButton>
-          </IonItem>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
+            <h3>{userData.username}</h3>
+            <p>{userData.email}</p>
+          </IonLabel>
 
-      <IonGrid>
-
-          <IonRow>
-            <IonCol>Date</IonCol>
-            <IonCol>Subject</IonCol>
-            <IonCol>Snippet</IonCol>
-          </IonRow>
+          <IonButton className="login-button" onClick={() => signOut()} fill="solid" color="danger">
+            home
+          </IonButton>
           
-    
-          {emailPages[currentPage - 1]?.map((email, index) => (
-            <IonRow key={index}>
-              <IonCol>{email.date}</IonCol>
-              <IonCol>{email.subject}</IonCol>
-              <IonCol>{email.snippet}</IonCol>
-            </IonRow>
-          ))}
-        </IonGrid>
+          <IonButton id="open-modal" expand="block" color='tertiary' > 
+            Send Mail
+          </IonButton>
+          <IonModal ref={(ref) => setModal(ref)}
+          trigger="open-modal"
+          onWillDismiss={(ev) => onWillDismiss(ev)}
+        >
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => modal.dismiss()}>Cancel</IonButton>
+              </IonButtons>
+              <IonTitle>Welcome</IonTitle>
+              <IonButtons slot="end">
+                <IonButton strong={true} onClick={() => confirm()}>
+                  Confirm
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonItem>
+              <IonLabel position="stacked">Recipient Email</IonLabel>
+              <IonInput ref={(ref) => setInput(ref)}
+                type="text"
+                placeholder="example@gmail.com"
+              />
+               </IonItem>
+               <IonItem>
+              <IonLabel position="stacked" className='py-5'>Subject</IonLabel>
+               <IonInput ref={(ref) => setInput(ref)}
+                type="text"
+                placeholder="Greetings"
+              />
+               </IonItem>
+               <IonItem>
+              <IonLabel position="stacked" className='py-5'>Body</IonLabel>
+               <IonInput ref={(ref) => setInput(ref)}
+                type="text"
+                placeholder="how are you?"
+              />
+               </IonItem>
+               <IonItem>
+              <IonLabel position="stacked" className='py-5'>Attachments</IonLabel>
+               <IonInput ref={(ref) => setInput(ref)}
+                type="text"
+                placeholder="Image Link"
+              />
+            </IonItem>
+          </IonContent>
+        </IonModal>
+        </IonItem>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent className="ion-padding">
+      <IonGrid className="email-grid">
 
-       
-        <IonRow>
-          <IonCol className="ion-text-center">
-            <IonButton
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous Page
-            </IonButton>
-            <IonButton
-              onClick={() => loadNextPage()}
-
-            >
-              Next Page
-            </IonButton>
-          </IonCol>
+        <IonRow className="header-row">
+          <IonCol className="header-cell">Mail ID</IonCol>
+          <IonCol className="header-cell">Date</IonCol>
+          <IonCol className="header-cell">Subject</IonCol>
+          <IonCol className="header-cell">Snippet</IonCol>
         </IonRow>
-      </IonContent>
-    </IonPage>
 
-  );
+        {emailPages[currentPage - 1]?.map((email, index) => (
+          <IonRow key={index} className="email-row">
+            <IonCol className="email-cell">{email.mailId}</IonCol>
+            <IonCol className="email-cell">{email.date}</IonCol>
+            <IonCol className="email-cell">{email.subject}</IonCol>
+            <IonCol className="email-cell">{email.snippet}</IonCol>
+          </IonRow>
+        ))}
+      </IonGrid>
+
+      <IonRow>
+        <IonCol className="ion-text-center">
+          <IonButton
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous Page
+          </IonButton>
+          <IonButton
+            onClick={() => loadNextPage()}
+          >
+            Next Page
+          </IonButton>
+        </IonCol>
+      </IonRow>
+    </IonContent>
+  </IonPage>
+);
 }
 
 export default withRouter(Inbox);

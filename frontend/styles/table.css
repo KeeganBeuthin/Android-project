@@ -1,0 +1,29 @@
+.email-grid {
+    border: 1px solid #ccc;
+    margin: 10px;
+    padding: 10px;
+  }
+  
+  /* Add styles for the header row */
+  .header-row {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  
+  /* Add styles for header cells and email cells */
+  .header-cell,
+  .email-cell {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    background-color: #94bbff;
+    color: rgb(0, 0, 0);
+    font-family: "Lucida Console", "Courier New", monospace;
+  }
+  
+  /* Add styles for email rows */
+  .email-row:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  
