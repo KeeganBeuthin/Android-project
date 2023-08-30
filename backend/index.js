@@ -11,6 +11,11 @@ import session from 'express-session';
 import { createClient } from 'redis';
 import cookieParser from 'cookie-parser';
 import Ajv from "ajv"
+
+
+
+
+
 const service = 'service-account@sodium-bliss-395109.iam.gserviceaccount.com'
 const ajv = new Ajv()
 
@@ -188,6 +193,17 @@ const api = new OpenAPIBackend({
 
       }
     },
+    '/api/send-email':{
+      post: {
+        operationId: 'sendMail',
+        responses: {
+          200: {description: 'ok',
+        content: {
+          'application/json': {}
+        }}
+        }
+      }
+    }
     },
     components:{
     schemas: {
@@ -466,11 +482,9 @@ console.log('duplicate')
      
 
       const tokenRecord  = await sql `select access_token from tokens where user_id=${id}` 
-
+      
       const token = tokenRecord[0].access_token; 
       
-     
-
       const response= await gmail.users.messages.get({
         userId: id,
         id: mailId,
@@ -491,6 +505,106 @@ console.log('duplicate')
       const emailContent = {date, subject, snippet, mailId}
       console.log(emailContent)
        return res.status(200).json({emailContent})
+
+    },
+    sendMail: async (c, req,res) => {
+      const emailData = req.body
+
+
+      const context = req.body.subject
+      const emailContent = req.body.content
+      const attachments = req.body.attachments
+      const recipient = req.body.to
+      const session = req.session.id
+      const sessionData = await redisClient.get(`SessionStore:${session}`)
+      const sessionObject = JSON.parse(sessionData)
+
+      const userId= sessionObject.userId
+
+      const userInfo = await sql`select * from accounts where id =${userId} `
+
+     const sender = userInfo.email
+
+      const tokenRecord  = await sql `select access_token from tokens where user_id=${userId}` 
+      
+      const token = tokenRecord[0].access_token; 
+  
+
+
+      const transporter = nodemailer.createTransport({
+        service: 'Gmail', 
+        auth: {
+          type: 'OAuth2',
+          user: sender, // Authenticated user's email address
+          accessToken: token,
+        },
+      });
+
+      const encodeMessage = (message) => {
+         Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      };
+
+
+      const createMail = async (options) => {
+        const mailComposer = new MailComposer(options);
+        const message = await mailComposer.compile().build();
+         encodeMessage(message);
+         console.log(message)
+      };
+
+
+
+    
+
+      const sendMail = async (options) => {
+        const gmail = getGmailService();
+        const rawMessage = await createMail(options);
+        const { data: { id } = {} } = await gmail.users.messages.send({
+          userId: userId,
+          resource: {
+            raw: rawMessage,
+          },
+        });
+        return id;
+      };
+
+      const main = async () => {
+        const fileAttachments = [
+          {
+            filename: 'attachment1.txt',
+            content: 'This is a plain text file sent as an attachment',
+          },
+          {
+            path: path.join(__dirname, './attachment2.txt'),
+          },
+          {
+            filename: 'websites.pdf',
+            path: 'https://www.labnol.org/files/cool-websites.pdf',
+          },
+      
+          {
+            filename: 'image.png',
+            content: fs.createReadStream(path.join(__dirname, './attach.png')),
+          },
+        ];
+      
+        const options = {
+          to: recipient,
+          cc: 'cc1@example.com, cc2@example.com',
+          replyTo: 'amit@labnol.org',
+          subject: context,
+          text: emailContent,
+          html: `<p>🙋🏻‍♀️  &mdash; This is a <b>test email</b> from <a href="https://digitalinspiration.com">Digital Inspiration</a>.</p>`,
+          attachments: fileAttachments,
+          textEncoding: 'base64',
+        };
+      
+        const messageId = await sendMail(options);
+     console.log(messageId)
+     return res.status(200).json({messageId: 'email sent'})
+      };
+     
+
 
     },
     validationFail: async (c, req, res) => res.status(400).json({ err: c.validation.errors }),

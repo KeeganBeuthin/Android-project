@@ -14,8 +14,9 @@ import Settings from './pages/Settings';
 import Home from './pages/Home';
 import Login from './pages/login';
 import { Provider } from 'react-redux';
-import store from '../android/redux/redux'
 import Inbox from './pages/Inbox'
+import { PersistGate } from 'redux-persist/integration/react'
+import store, { persistor } from '../android/redux/store'
 setupIonicReact({});
 
 
@@ -126,6 +127,7 @@ console.log(Home)
 const AppShell = () => {
   return (
   <Provider store={store}>
+ <PersistGate loading={null} persistor={persistor}> 
     <MyErrorBoundary> 
     <IonApp>
       <IonReactRouter >
@@ -139,6 +141,7 @@ const AppShell = () => {
       </IonReactRouter>
     </IonApp>
     </MyErrorBoundary>
+    </PersistGate>
     </Provider>
   );
 };

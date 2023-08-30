@@ -39,6 +39,11 @@ const Inbox = () => {
   const [message, setMessage] = useState(
     'This modal example uses triggers to automatically open a modal when the button is clicked.'
   );
+
+  const [inputRecipient, setInputRecipient] = useState(null);
+const [inputSubject, setInputSubject] = useState(null);
+const [inputBody, setInputBody] = useState(null);
+const [inputAttachments, setInputAttachments] = useState(null);
  const history = useHistory()
  
 
@@ -194,11 +199,6 @@ const loadNextPage = async () => {
     setCurrentPage(currentPage + 1);
   }
 };
-const sendMail = () => {
-  
-  history.push('/send');
-};
-
 const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
 
@@ -209,13 +209,48 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
  
 
-  function confirm() {
-    modal.dismiss(input.value, 'confirm');
-  }
+
+    async function sendEmail() {
+      try {
+   
+        const emailPayload = {
+          'to': inputRecipient.value,
+          'subject': inputSubject.value,
+          'content': inputBody.value,
+          'attachments': inputAttachments.value, 
+        };
+        const options = {
+          method: 'POST', 
+          headers: {
+            'Content-Type': 'application/json',
+            'credentials': 'include',
+            'authorization': 'include'
+          },
+          body: JSON.stringify(emailPayload),
+        };
+  
+        const response = await fetch('/api/send-email', options); 
+        console.log(response)
+        if (response.ok) {
+        
+          setMessage(`Email sent successfully to ${inputRecipient.value}`);
+          modal.dismiss();
+        } else {
+
+          setMessage('Failed to send email');
+
+        }
+      } catch (error) {
+        setMessage('Error sending email');
+        console.error('Error sending email:', error);
+      }
+    }
+  
+
 
   function onWillDismiss(ev) {
     if (ev.detail.role === 'confirm') {
-      setMessage(`Hello, ${ev.detail.data}!`);
+      setMessage(`Email sending in progress...`);
     }
   }
 
@@ -247,9 +282,9 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
               <IonButtons slot="start">
                 <IonButton onClick={() => modal.dismiss()}>Cancel</IonButton>
               </IonButtons>
-              <IonTitle>Welcome</IonTitle>
+              <IonTitle>Send Emails</IonTitle>
               <IonButtons slot="end">
-                <IonButton strong={true} onClick={() => confirm()}>
+                <IonButton strong={true} onClick={() => sendEmail()}>
                   Confirm
                 </IonButton>
               </IonButtons>
@@ -257,29 +292,29 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
           </IonHeader>
           <IonContent className="ion-padding">
             <IonItem>
-              <IonLabel position="stacked">Recipient Email</IonLabel>
-              <IonInput ref={(ref) => setInput(ref)}
+              <IonLabel position="stacked">Recipient</IonLabel>
+              <IonInput ref={(ref) => setInputRecipient(ref)}
                 type="text"
                 placeholder="example@gmail.com"
               />
                </IonItem>
                <IonItem>
               <IonLabel position="stacked" className='py-5'>Subject</IonLabel>
-               <IonInput ref={(ref) => setInput(ref)}
+               <IonInput ref={(ref) => setInputSubject(ref)}
                 type="text"
                 placeholder="Greetings"
               />
                </IonItem>
                <IonItem>
               <IonLabel position="stacked" className='py-5'>Body</IonLabel>
-               <IonInput ref={(ref) => setInput(ref)}
+               <IonInput ref={(ref) => setInputBody(ref)}
                 type="text"
                 placeholder="how are you?"
               />
                </IonItem>
                <IonItem>
               <IonLabel position="stacked" className='py-5'>Attachments</IonLabel>
-               <IonInput ref={(ref) => setInput(ref)}
+               <IonInput ref={(ref) => setInputAttachments(ref)}
                 type="text"
                 placeholder="Image Link"
               />
@@ -330,8 +365,3 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 }
 
 export default withRouter(Inbox);
-
-
-
-
-

@@ -19,6 +19,7 @@
     "express-session": "^1.17.3",
     "googleapis": "^123.0.0",
     "jsonwebtoken": "^9.0.1",
+    "nodemailer": "^6.9.4",
     "openapi-backend": "^5.2.0",
     "postgres": "^3.3.5",
     "redis": "^4.6.7"
