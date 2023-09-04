@@ -235,43 +235,82 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     async function sendEmail() {
       try {
    
-        const emailPayload = {
-          'to': inputRecipient.value,
-          'subject': inputSubject.value,
-          'content': inputBody.value,
-          'cc': inputCC.value
-        };
 
-        const formData = new FormData();
-
-        for (let i = 0; i < selectedFiles.length; i++) {
-          formData.append('attachments', selectedFiles[i]);
-        }
+   const emailPayload = {
+    'to': inputRecipient.value,
+    'subject': inputSubject.value,
+    'content': inputBody.value,
+    'cc': inputCC.value,
     
-        formData.append('emailData', JSON.stringify(emailPayload));
+  };
+  const jsonString = JSON.stringify(emailPayload);
+
+  const formData = new FormData();
+
+  formData.append('payload', new Blob([jsonString], { type: 'application/json' }));
 
 
-        const options = {
-          method: 'POST', 
-          headers: {
-            'Content-Type': 'application/json',
-            'credentials': 'include',
-            'authorization': 'include'
-          },
-          body: formData,
-        };
+
+  const attach = selectedFiles
+
+if (attach.length > 0) {
+  for (const file of attach) {
+    // Append each base64-encoded attachment as a separate file in FormData
+    formData.append('attachments', file);
+  }
+  console.log(formData)
+  const options = {
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'credentials': 'include',
+      'authorization': 'include'
+    },
+    body: formData,
+  };
+
+
+  const response = await fetch('/api/send-email', options); 
+  console.log(response)
+  if (response.ok) {
   
-        const response = await fetch('/api/send-email', options); 
-        console.log(response)
-        if (response.ok) {
-        
-          setMessage(`Email sent successfully to ${inputRecipient.value}`);
-          modal.dismiss();
-        } else {
+    setMessage(`Email sent successfully to ${inputRecipient.value}`);
+    modal.dismiss();
+  } else {
 
-          setMessage('Failed to send email');
+    setMessage('Failed to send email');
 
-        }
+  }
+
+}
+      
+   
+else{
+  
+  const options = {
+  method: 'POST', 
+  headers: {
+    'Content-Type': 'application/json',
+    'credentials': 'include',
+    'authorization': 'include'
+  },
+  body: JSON.stringify(emailPayload),
+};
+
+const response = await fetch('/api/send-email', options); 
+console.log(response)
+if (response.ok) {
+
+  setMessage(`Email sent successfully to ${inputRecipient.value}`);
+  modal.dismiss();
+} else {
+
+  setMessage('Failed to send email');
+
+}
+
+}
+       
       } catch (error) {
         setMessage('Error sending email');
         console.error('Error sending email:', error);
@@ -378,7 +417,7 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <form>
+            <form encType='multipart/form-data'>
               <input
                 type="file"
                 ref={fileInputRef}

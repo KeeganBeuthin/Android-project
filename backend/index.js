@@ -14,9 +14,23 @@ const Ajv = require('ajv');
 const MailComposer = require('nodemailer/lib/mail-composer');
 const nodemailer = require('nodemailer');
 
+const path = require('path');
+const multer = require('multer');
+
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+  }
+})
 
 
 
+
+const upload = multer({storage: storage}).array('attachment',10)
 
 const service = 'service-account@sodium-bliss-395109.iam.gserviceaccount.com'
 const ajv = new Ajv()
@@ -43,7 +57,7 @@ app.use(express.json());
 
 app.set('trust proxy', 1)
 
-
+app.use(express.static(path.join(__dirname + "public/uploads")))
 
 
 app.use(
@@ -514,7 +528,11 @@ console.log('duplicate')
     },
     sendMail: async (c, req,res) => {
 
-      console.log(req.body)
+
+     
+
+
+   
       const emailData = req.body
 
 
@@ -536,6 +554,13 @@ const cc = req.body.cc
       
       const token = tokenRecord[0].access_token; 
   
+      if (req.is('multipart/form-data') ) {
+       
+       upload(req,res,(error) => {
+        console.log(req.body)
+       })
+      }
+
 
       const encodeMessage = (message) => {
         return Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
