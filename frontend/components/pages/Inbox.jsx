@@ -15,9 +15,10 @@ import { fetchEmailsRequest, fetchEmailsSuccess, fetchEmailsFailure } from '../.
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import EmailForm from './popup';
+import Image from 'next/image'
 const isAndroid = Capacitor.getPlatform() === 'android';
 
-
+console.log(isAndroid)
 const INITIAL_STATE = {
   loggedIn: true,
   user: {}
@@ -44,6 +45,11 @@ const Inbox = () => {
 const [inputSubject, setInputSubject] = useState(null);
 const [inputBody, setInputBody] = useState(null);
 const [inputAttachments, setInputAttachments] = useState(null);
+const [inputCC, setInputCC] = useState(null);
+const [showModal, setShowModal] = useState(false);
+const fileInputRef = useRef(null);
+const [selectedFiles, setSelectedFiles] = useState([]);
+
  const history = useHistory()
  
 
@@ -170,6 +176,8 @@ const [inputAttachments, setInputAttachments] = useState(null);
 
 
 
+
+
     async function signOut() {
       await GoogleAuth.signOut();
       history.push('/home');
@@ -207,6 +215,20 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   
   
 
+
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const handleFileInputChange = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedFiles([...selectedFiles, ...files]);
+    e.target.value = null;
+  };
  
 
 
@@ -217,8 +239,18 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
           'to': inputRecipient.value,
           'subject': inputSubject.value,
           'content': inputBody.value,
-          'attachments': inputAttachments.value, 
+          'cc': inputCC.value
         };
+
+        const formData = new FormData();
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+          formData.append('attachments', selectedFiles[i]);
+        }
+    
+        formData.append('emailData', JSON.stringify(emailPayload));
+
+
         const options = {
           method: 'POST', 
           headers: {
@@ -226,7 +258,7 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
             'credentials': 'include',
             'authorization': 'include'
           },
-          body: JSON.stringify(emailPayload),
+          body: formData,
         };
   
         const response = await fetch('/api/send-email', options); 
@@ -253,6 +285,12 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
       setMessage(`Email sending in progress...`);
     }
   }
+
+  const removeFile = (index) => {
+    const updatedFiles = [...selectedFiles];
+    updatedFiles.splice(index, 1);
+    setSelectedFiles(updatedFiles);
+  };
 
   return (
     <IonPage>
@@ -299,6 +337,13 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
               />
                </IonItem>
                <IonItem>
+              <IonLabel position="stacked">CC</IonLabel>
+              <IonInput ref={(ref) => setInputCC(ref)}
+                type="text"
+                placeholder="example2@gmail.com"
+              />
+               </IonItem>
+               <IonItem>
               <IonLabel position="stacked" className='py-5'>Subject</IonLabel>
                <IonInput ref={(ref) => setInputSubject(ref)}
                 type="text"
@@ -306,18 +351,46 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
               />
                </IonItem>
                <IonItem>
-              <IonLabel position="stacked" className='py-5'>Body</IonLabel>
+              <IonLabel position="stacked" className='py-5 text-lg'>Body</IonLabel>
                <IonInput ref={(ref) => setInputBody(ref)}
                 type="text"
                 placeholder="how are you?"
               />
                </IonItem>
                <IonItem>
-              <IonLabel position="stacked" className='py-5'>Attachments</IonLabel>
-               <IonInput ref={(ref) => setInputAttachments(ref)}
-                type="text"
-                placeholder="Image Link"
+              <IonLabel position="stacked" className='py-5 text-lg'>Attachments</IonLabel>
+        
+    <ul>
+      {selectedFiles.map((file, index) => (
+        <li key={index}>{file.name} 
+         <button onClick={() => removeFile(index)} className='px-3 pt-2 col'><IonImg src="https://i.ibb.co/k1BVnnB/cross.png" className='w-8 h-8'></IonImg></button>
+         </li>
+        
+      ))}
+
+    </ul>
+              <IonButton onClick={openModal} id="uploadButton">Upload Files</IonButton>
+              <IonContent>
+        <IonModal isOpen={showModal} onDidDismiss={closeModal}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Upload Files</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <form>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*, video/*"
+                onChange={handleFileInputChange}
+                multiple
               />
+            </form>
+            <IonButton onClick={closeModal}>Close Modal</IonButton>
+          </IonContent>
+        </IonModal>
+        </IonContent>
             </IonItem>
           </IonContent>
         </IonModal>

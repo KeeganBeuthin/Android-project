@@ -1,16 +1,18 @@
-import {OpenAPIBackend} from 'openapi-backend';;
-import express from 'express';
-import { useAuth } from 'react-oidc-context'; 
-import { GoogleApis } from 'googleapis';
-import cors from 'cors'
-import postgres from 'postgres';
-import key from './Private_key.json' assert { type: "json" }
-import RedisStore from 'connect-redis';
-import addFormats from "ajv-formats"
-import session from 'express-session';
-import { createClient } from 'redis';
-import cookieParser from 'cookie-parser';
-import Ajv from "ajv"
+const { OpenAPIBackend } = require('openapi-backend');
+const express = require('express');
+const { useAuth } = require('react-oidc-context');
+const { google } = require('googleapis');
+const cors = require('cors');
+const postgres = require('postgres');
+const key = require('./Private_key.json'); 
+const RedisStore = require('connect-redis').default
+const addFormats = require('ajv-formats');
+const session = require('express-session');
+const { createClient } = require('redis');
+const cookieParser = require('cookie-parser');
+const Ajv = require('ajv');
+const MailComposer = require('nodemailer/lib/mail-composer');
+const nodemailer = require('nodemailer');
 
 
 
@@ -21,9 +23,11 @@ const ajv = new Ajv()
 
 addFormats(ajv)
 const sql = postgres('postgres://postgres:hahaha@127.0.0.1:8080/rat')
-const google = new GoogleApis()
+
 
 const app = express();
+app.use(express.json({ limit: '1mb' })); // Adjust the limit as needed
+app.use(express.urlencoded({ limit: '1mb', extended: true })); // Adjust the limit as needed
 
 app.use(cookieParser())
 
@@ -38,6 +42,7 @@ let redisStore = new RedisStore({
 app.use(express.json());
 
 app.set('trust proxy', 1)
+
 
 
 
@@ -77,7 +82,7 @@ const gmail = google.gmail({
 })
 
 
-
+// Functions for later use //
 
 
 
@@ -508,6 +513,8 @@ console.log('duplicate')
 
     },
     sendMail: async (c, req,res) => {
+
+      console.log(req.body)
       const emailData = req.body
 
 
@@ -518,91 +525,57 @@ console.log('duplicate')
       const session = req.session.id
       const sessionData = await redisClient.get(`SessionStore:${session}`)
       const sessionObject = JSON.parse(sessionData)
+const cc = req.body.cc
+      const user= sessionObject.userId
 
-      const userId= sessionObject.userId
-
-      const userInfo = await sql`select * from accounts where id =${userId} `
+      const userInfo = await sql`select * from accounts where id =${user} `
 
      const sender = userInfo.email
 
-      const tokenRecord  = await sql `select access_token from tokens where user_id=${userId}` 
+      const tokenRecord  = await sql `select access_token from tokens where user_id=${user}` 
       
       const token = tokenRecord[0].access_token; 
   
 
-
-      const transporter = nodemailer.createTransport({
-        service: 'Gmail', 
-        auth: {
-          type: 'OAuth2',
-          user: sender, // Authenticated user's email address
-          accessToken: token,
-        },
-      });
-
       const encodeMessage = (message) => {
-         Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        return Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
       };
-
-
+      
       const createMail = async (options) => {
         const mailComposer = new MailComposer(options);
         const message = await mailComposer.compile().build();
-         encodeMessage(message);
-         console.log(message)
+        return encodeMessage(message);
       };
-
-
-
-    
-
+      
       const sendMail = async (options) => {
-        const gmail = getGmailService();
+        
         const rawMessage = await createMail(options);
         const { data: { id } = {} } = await gmail.users.messages.send({
-          userId: userId,
+          userId: user,
           resource: {
             raw: rawMessage,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         });
         return id;
       };
-
-      const main = async () => {
-        const fileAttachments = [
-          {
-            filename: 'attachment1.txt',
-            content: 'This is a plain text file sent as an attachment',
-          },
-          {
-            path: path.join(__dirname, './attachment2.txt'),
-          },
-          {
-            filename: 'websites.pdf',
-            path: 'https://www.labnol.org/files/cool-websites.pdf',
-          },
-      
-          {
-            filename: 'image.png',
-            content: fs.createReadStream(path.join(__dirname, './attach.png')),
-          },
-        ];
+    
       
         const options = {
           to: recipient,
-          cc: 'cc1@example.com, cc2@example.com',
-          replyTo: 'amit@labnol.org',
+          cc: cc,
           subject: context,
           text: emailContent,
-          html: `<p>🙋🏻‍♀️  &mdash; This is a <b>test email</b> from <a href="https://digitalinspiration.com">Digital Inspiration</a>.</p>`,
-          attachments: fileAttachments,
+          html: emailContent,
           textEncoding: 'base64',
         };
       
         const messageId = await sendMail(options);
      console.log(messageId)
      return res.status(200).json({messageId: 'email sent'})
-      };
+      
      
 
 
