@@ -234,7 +234,23 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
     async function sendEmail() {
       try {
-   
+
+        function readFileAsBase64(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+        
+            reader.onload = (event) => {
+              const base64Data = event.target.result.split(',')[1]; // Extract base64 data part
+              resolve(base64Data);
+            };
+        
+            reader.onerror = (error) => {
+              reject(error);
+            };
+        
+            reader.readAsDataURL(file); // Read the file as data URL (base64)
+          });
+        }
 
    const emailPayload = {
     'to': inputRecipient.value,
@@ -249,26 +265,30 @@ const attach = selectedFiles
 
 if (attach.length > 0) {
   for (const file of attach) {
+    // Read the file data as a base64-encoded string
+    const base64Data = await readFileAsBase64(file);
+
+    // Create an object for each attachment with filename and base64 data
     emailPayload.attachments.push({
       filename: file.name,
-      data: file })
+      data: base64Data
+    });
   }
 
 
-    const formData = new FormData();
-    formData.append('payload', JSON.stringify(emailPayload));
+ const formData = JSON.stringify(emailPayload)
 
+console.log(emailPayload)
   
-  console.log(emailPayload)
 
   const options = {
     method: 'POST', 
     headers: {
-      'Content-Type': 'multipart/form-data',
+      'Content-Type': 'application/json',
       'credentials': 'include',
       'authorization': 'include'
     },
-    body: emailPayload,
+    body: formData,
   };
 
 
@@ -422,6 +442,7 @@ if (response.ok) {
             <form encType='multipart/form-data'>
               <input
                 type="file"
+                name='file'
                 ref={fileInputRef}
                 accept="image/*, video/*"
                 onChange={handleFileInputChange}

@@ -16,21 +16,17 @@ const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer');
+const fs = require('fs')
 
-
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, '/uploads')
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, 'uploads'), // Set the destination folder to 'uploads'
+  filename: (req, file, cb) => {
+    // Customize the filename if needed (e.g., add a timestamp)
+    cb(null, Date.now() + '-' + file.originalname);
   },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
-  }
-})
+});
 
-
-
-
-const upload = multer({storage: storage}).array('attachment',10)
+const upload = multer({ storage: storage }).array('file', 100);
 
 const service = 'service-account@sodium-bliss-395109.iam.gserviceaccount.com'
 const ajv = new Ajv()
@@ -40,8 +36,8 @@ const sql = postgres('postgres://postgres:hahaha@127.0.0.1:8080/rat')
 
 
 const app = express();
-app.use(express.json({ limit: '1mb' })); // Adjust the limit as needed
-app.use(express.urlencoded({ limit: '1mb', extended: true })); // Adjust the limit as needed
+app.use(express.json({ limit: '2mb' })); // Adjust the limit as needed
+app.use(express.urlencoded({ limit: '2mb', extended: true })); // Adjust the limit as needed
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser())
@@ -530,16 +526,43 @@ console.log('duplicate')
     sendMail: async (c, req,res) => {
 
 
-     
+      const attached = req.body.attachments
 
+      const files = [];
 
+      const saveBinaryDataToFile = (binaryData, fileExtension) => {
+        const timestamp = Date.now();
+        const filename = `${timestamp}.${fileExtension}`;
+        const filePath = path.join(__dirname, 'uploads', filename); // Specify the full path to the file
+        fs.writeFile(filePath, binaryData, 'binary', (err) => {
+          if (err) {
+            console.error('Error saving file:', err);
+          } else {
+            console.log(`File saved: ${filename}`);
+            files.push({ path: filePath, filename });
+            console.log(files);
+          }
+        });
+      };
    
+
+      for (const attachment of attached) {
+        const filename = attachment.filename;
+        const base64Data = attachment.data;
+      
+        // Decode the base64 data into binary
+        const binaryData = Buffer.from(base64Data, 'base64');
+       ;
+      
+        // Save the binary data to a file
+        saveBinaryDataToFile(binaryData, filename);
+      }
+
       const emailData = req.body
 
 
       const context = req.body.subject
       const emailContent = req.body.content
-      const attachments = req.body.attachments
       const recipient = req.body.to
       const session = req.session.id
       const sessionData = await redisClient.get(`SessionStore:${session}`)
@@ -555,14 +578,7 @@ const cc = req.body.cc
       
       const token = tokenRecord[0].access_token; 
   
-      if (req.is('multipart/form-data') ) {
-       
-       upload(req,res,(error) => {
-
-        console.log(req.body)
-        console.log(req.body.attachments)
-       })
-      }
+     
 
 
       const encodeMessage = (message) => {
@@ -597,6 +613,7 @@ const cc = req.body.cc
           subject: context,
           text: emailContent,
           html: emailContent,
+          attachments: files,
           textEncoding: 'base64',
         };
       
