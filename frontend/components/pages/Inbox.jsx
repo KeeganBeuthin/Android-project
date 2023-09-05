@@ -241,24 +241,26 @@ const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     'subject': inputSubject.value,
     'content': inputBody.value,
     'cc': inputCC.value,
-    
+    'attachments': []
   };
-  const jsonString = JSON.stringify(emailPayload);
 
-  const formData = new FormData();
+const attach = selectedFiles
 
-  formData.append('payload', new Blob([jsonString], { type: 'application/json' }));
-
-
-
-  const attach = selectedFiles
 
 if (attach.length > 0) {
   for (const file of attach) {
-    // Append each base64-encoded attachment as a separate file in FormData
-    formData.append('attachments', file);
+    emailPayload.attachments.push({
+      filename: file.name,
+      data: file })
   }
-  console.log(formData)
+
+
+    const formData = new FormData();
+    formData.append('payload', JSON.stringify(emailPayload));
+
+  
+  console.log(emailPayload)
+
   const options = {
     method: 'POST', 
     headers: {
@@ -266,7 +268,7 @@ if (attach.length > 0) {
       'credentials': 'include',
       'authorization': 'include'
     },
-    body: formData,
+    body: emailPayload,
   };
 
 

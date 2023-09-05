@@ -13,7 +13,7 @@ const cookieParser = require('cookie-parser');
 const Ajv = require('ajv');
 const MailComposer = require('nodemailer/lib/mail-composer');
 const nodemailer = require('nodemailer');
-
+const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer');
 
@@ -42,7 +42,8 @@ const sql = postgres('postgres://postgres:hahaha@127.0.0.1:8080/rat')
 const app = express();
 app.use(express.json({ limit: '1mb' })); // Adjust the limit as needed
 app.use(express.urlencoded({ limit: '1mb', extended: true })); // Adjust the limit as needed
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser())
 
 let redisClient = createClient()
@@ -557,7 +558,9 @@ const cc = req.body.cc
       if (req.is('multipart/form-data') ) {
        
        upload(req,res,(error) => {
+
         console.log(req.body)
+        console.log(req.body.attachments)
        })
       }
 
