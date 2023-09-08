@@ -9,13 +9,25 @@ import "@codetrix-studio/capacitor-google-auth";
 import { useHistory } from 'react-router-dom'
 import { withRouter } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
+
+const isAndroid = Capacitor.getPlatform() === 'android';
+let client;
+
+      if (isAndroid) {
+        // Android direct API call
+        client = '597005595484-tgc3ks9dff3qt9moup9ih752b1v64jml.apps.googleusercontent.com';
+      } else {
+        // Browser reverse proxy
+        client = '48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com'; 
+      }
+
   // src/services/gmail-authentication.js
   GoogleAuth.initialize({
-    clientId: '48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com',
+    clientId: client,
     scopes: [' https://mail.google.com/'],
     grantOfflineAccess: true,
   });
-  const isAndroid = Capacitor.getPlatform() === 'android';
+
   console.log(isAndroid)
   const INITIAL_STATE = {
 
@@ -35,6 +47,7 @@ import { Capacitor } from '@capacitor/core';
     
       console.info('result', result);
 
+      console.info(result);
       const options ={
         method: "Post",
         headers: {'Content-Type': 'application/json', 'credentials': 'include',},

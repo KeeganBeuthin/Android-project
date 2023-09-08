@@ -12,21 +12,10 @@ const { createClient } = require('redis');
 const cookieParser = require('cookie-parser');
 const Ajv = require('ajv');
 const MailComposer = require('nodemailer/lib/mail-composer');
-const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const path = require('path');
-const multer = require('multer');
 const fs = require('fs')
 
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, 'uploads'), // Set the destination folder to 'uploads'
-  filename: (req, file, cb) => {
-    // Customize the filename if needed (e.g., add a timestamp)
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage }).array('file', 100);
 
 const service = 'service-account@sodium-bliss-395109.iam.gserviceaccount.com'
 const ajv = new Ajv()
@@ -59,7 +48,7 @@ app.use(express.static(path.join(__dirname + "public/uploads")))
 
 app.use(
   cors({
-    origin: ["http://localhost:3000",'http://10.0.2.16'],
+    origin: ["http://localhost:3000",'http://10.0.2.16',"http://10.0.2.2:5554","http://10.0.2.2:5555","http://localhost","http://192.168.39.115:9000","http://localhost/"],
     methods: ['GET, POST, OPTIONS, PUT, PATCH, DELETE'],
     credentials: true,
     allowedHeaders: ['Content-Type, Authorization, credentials']
@@ -272,7 +261,8 @@ const api = new OpenAPIBackend({
     getUserInfo: async (c, req, res) => {
       const session = req.session.id
       
-console.log(session)
+console.log('hello',session)
+
       if(!session){
         res.status(404).json({error:'no session found'})
       }  
@@ -284,7 +274,7 @@ console.log(session)
       }
       
       const sessionData = await redisClient.get(`SessionStore:${session}`)
-      console.log(sessionData)
+      console.log('session:',sessionData)
       if (!sessionData) {
         return res.status(404).json({ error: 'Session data not found' });
       }
@@ -328,7 +318,6 @@ console.log(userId)
     },
     storeData: async (c, req, res) => {
 
-
 const currentTime = new Date();
      async function checkExpiredTokens(){
       const clearTokens = await sql `Delete From tokens where expires_at < ${currentTime}
@@ -368,7 +357,7 @@ const currentTime = new Date();
               OFFSET 1
             )
           `;
-          console.log(`Cleaned duplicates for email: ${user.email}`);
+          console.log('Cleaned');
         }
       }
 const sessionId = req.session.id
@@ -376,7 +365,8 @@ const sessionId = req.session.id
 req.session.userId= id
 
 
-const cookieValue = `info=${sessionId}; Path=/; HttpOnly; SameSite=None; Secure; maxAge=360000000`;
+
+const cookieValue = `info=${sessionId}; Path=/; HttpOnly; SameSite=None; Secure; maxAge=36000000`;
 
     if(tokenCheck.length >= 1 && userCheck.length >=1){
       console.log('found')
@@ -427,28 +417,7 @@ console.log('duplicate')
       })   
     }
 
-
-
-      const storeToken = await sql`insert into tokens(access_token,expires_at,created_at,user_id)  VALUES (${token},${expirationTime},now(),${id})
-      `
-      const storeUser = await sql`insert into accounts(username,created_on,email,id,image_url) VALUES (${username},now(),${email},${id},${image})
-      `
-      console.log('duplicateeee')
-
-      if(req.cookies.info){
-        req.session.save(function (err) {
-          if (err) return (err)
-          console.log('session saved')
-          return res.status(200).json({success: 'token and user data stored '})
-        })       
-  
-      }
-      req.session.save(function (err) {
-        if (err) return (err)
-        
-        console.log('session saved')
-        return res.status(200).json({success: 'token and user data stored'})
-      })       
+         
     },
     getUserMail: async (c, req, res) => {
       const session = req.session.id
