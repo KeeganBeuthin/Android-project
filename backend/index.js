@@ -368,54 +368,45 @@ req.session.userId= id
 
 const cookieValue = `info=${sessionId}; Path=/; HttpOnly; SameSite=None; Secure; maxAge=36000000`;
 
-    if(tokenCheck.length >= 1 && userCheck.length >=1){
-      console.log('found')
-      if(req.cookies.info){  
-        return res.status(200).json({success: 'user found '})
-      }
-      
-      req.session.save(function (err) {
-        if (err) return (err)
-        console.log('session saved')
-       return res.header('Set-Cookie', cookieValue).status(200).json({success: 'user found'});
-       
-      }) 
-    }
 
-    if (tokenCheck.length = 0 && userCheck.length >= 1){
-      const storeOnlyToken = await sql`insert into tokens(access_token,expires_at,created_at,user_id) VALUES (${token},${expirationTime},now(),${id})
-      `
-console.log('duplicate')
-      if(req.cookies.info){
-        return res.status(200).json({success: 'user found and token stored'})
-      }
+if(userCheck.length >= 1){
 
-      req.session.save(function (err) {
-        if (err) return (err)
-        console.log('session saved')
-        return res.header('Set-Cookie', cookieValue).status(200).json({success: 'user found and token stored'})
-      })       
-    }
+  const storeToken = await sql`insert into tokens(access_token,expires_at,created_at,user_id)  VALUES (${token},${expirationTime},now(),${id})
+  `
+  req.session.save(function (err) {
+    if (err) return (err)
+    
+    console.log('session saved')
+    return res.status(200).json({sessionId})
+  })   
+}
 
-    if(userCheck.length >= 1){
-      if(req.cookies.info){
-        req.session.save(function (err) {
-          if (err) return (err)
-          console.log('session saved')
-          return res.status(200).json({success: 'token and user data stored '})
-        })       
-  
-      }
+if(userCheck.length = 0){
 
-      const storeToken = await sql`insert into tokens(access_token,expires_at,created_at,user_id)  VALUES (${token},${expirationTime},now(),${id})
-      `
-      req.session.save(function (err) {
-        if (err) return (err)
-        
-        console.log('session saved')
-        return res.status(200).json({success: 'token and user data stored'})
-      })   
-    }
+  const storeToken = await sql`insert into tokens(access_token,expires_at,created_at,user_id)  VALUES (${token},${expirationTime},now(),${id})
+  `
+  const storeUser = await sql`insert into accounts(username,email,created_on,id,image_url) values (${username},${email},now(),${id},${image})
+  `
+
+  req.session.save(function (err) {
+    if (err) return (err)
+    
+    console.log('session saved')
+    return res.status(200).json({sessionId})
+  })   
+}
+
+
+req.session.save(function (err) {
+  if (err) return (err)
+  console.log('session saved')
+  return res.status(200).json({sessionId})
+ 
+}) 
+
+
+
+
 
          
     },

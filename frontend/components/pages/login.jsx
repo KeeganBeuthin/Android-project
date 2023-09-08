@@ -9,9 +9,10 @@ import "@codetrix-studio/capacitor-google-auth";
 import { useHistory } from 'react-router-dom'
 import { withRouter } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
-
 const isAndroid = Capacitor.getPlatform() === 'android';
+
 let client;
+
 
       if (isAndroid) {
         // Android direct API call
@@ -66,9 +67,23 @@ let client;
       
     
       if (result) {
-         await fetch(apiUrl,options)
-        history.push('/Home')
-      ;
+        const response = await fetch(apiUrl,options)
+
+        const responseBody = await response.text(); // Read the response body as text
+        const responseData = JSON.parse(responseBody); // Parse the JSON response
+        const sessionId = responseData.sessionId;
+       
+          console.log(response)
+          console.log(sessionId)
+          ;
+       
+
+          document.cookie = `sessionId=${sessionId}; path=/; Secure; SameSite=None; max-age=360000000`;
+
+  console.log('cookies stored')
+
+        
+
       }
     }
   

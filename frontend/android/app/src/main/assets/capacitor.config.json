@@ -8,6 +8,9 @@
 		"SplashScreen": {
 			"launchShowDuration": 0
 		},
+		"CapacitorCookies": {
+			"enabled": true
+		},
 		"GoogleAuth": {
 			"scopes": [
 				"profile",

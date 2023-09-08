@@ -9,6 +9,9 @@
     "SplashScreen": {
       "launchShowDuration": 0
     },
+    "CapacitorCookies": {
+      "enabled": true
+    },
     "GoogleAuth": {
       "scopes": ["profile","email"],
       "androidClientId": "48479698491-eggd5u6iebahkm5kakb9q81s9pme1j37.apps.googleusercontent.com",
