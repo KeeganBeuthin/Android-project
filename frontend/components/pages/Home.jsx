@@ -10,14 +10,15 @@ import Lists from './Lists';
 import ListDetail from './ListDetail';
 import Settings from './Settings';
 import Login from './login';
-
+import { CapacitorHttp } from '@capacitor/core';
 
 const isAndroid = Capacitor.getPlatform() === 'android';
 
 
 const INITIAL_STATE = {
   loggedIn: true,
-  user: {}
+  user: {},
+  isLoading: true
 };
 
 
@@ -45,14 +46,7 @@ class Home extends Component {
 
  async getUserData() {
     try {
-      const options = {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include',
-          'authorization': 'include'
-        },
-      };
+      console.log(isAndroid)
       let apiUrl;
 
       if (isAndroid) {
@@ -63,15 +57,24 @@ class Home extends Component {
         apiUrl = '/api/user'; 
       }
 
-      const response = await fetch(apiUrl, options);
+      const options = {
+        url: apiUrl,
+        headers: {
+          'Content-Type': 'application/json',
+          'credentials': 'include',
+          'authorization': 'include'
+        },
+      };
 
-      if (response.ok) {
-        const userData = await response.json();
-        const userInfo = userData.userInfo[0]
+      const response = await CapacitorHttp.get(options);
+
+      if (response.status === 200) {
       
-        const email = userInfo.email
+        
+        const userInfo = await response.data.userInfo[0]
      
-       this.setState({ user: userInfo });
+    this.setState({ user: userInfo, isLoading: false })
+       console.log('hello', this.state.user);
       } else {
         console.error('Failed to fetch user data');
       }
@@ -110,9 +113,20 @@ class Home extends Component {
     const mailTest = await fetch('/api/store/token', options)
     console.log(mailTest)
   }
+
+  
   render() {
+
+
+    const { user, isLoading } = this.state;
+
+
+    if (isLoading ===true) {
+     console.log('loading')
+      return <div>Loading...</div>;
+    }
    
-    const { user } = this.state;
+  
 
     return (
       <IonPage>

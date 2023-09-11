@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import EmailForm from './popup';
 import Image from 'next/image'
+import { CapacitorHttp } from '@capacitor/core';
 const isAndroid = Capacitor.getPlatform() === 'android';
 
 console.log(isAndroid)
@@ -52,48 +53,82 @@ const [selectedFiles, setSelectedFiles] = useState([]);
 
  const history = useHistory()
  
+ const isAndroid = Capacitor.getPlatform() === 'android';
 
  const emails = useSelector(state => state.inbox.emails);
 
- console.log(emails)
 
     async function fetchEmails(pageToken) {
 
   
       try {
+      
+
+       let apiUrl
+
+       if(isAndroid){
+        apiUrl = `http://192.168.39.115:9000/api/mail?pageToken=${pageToken || ''}`
+       }
+        else{
+          apiUrl =`/api/mail?pageToken=${pageToken || ''}` 
+        }
+       
+
         const options = {
-          method: 'GET',
+          url: apiUrl,
           headers: {
             'Content-Type': 'application/json',
             'credentials': 'include',
             'authorization': 'include'
           },
         };
-        const url = `/api/mail?pageToken=${pageToken || ''}`
-        const response = await fetch(url, options);
-        if (response.ok) {
-          const mailDataPromise = await response.json();
-          const mailData = mailDataPromise.messageIds;
-          const nextPageToken = mailDataPromise.nextPageToken
+
+
+        const response = await CapacitorHttp.get(options);
+  
+
+        if (response.status ===200||304) {
+  
+          const mailData = response.data.messageIds
+  console.log(mailData)
+          const nextPageToken = response.data.nextPageToken
          
           setNextPageToken(nextPageToken);
-          console.log(nextPageToken)
+      
+
           const fetchedEmails = [];
+
+
+          let postUrl
+
+
+          if(isAndroid){
+            postUrl = `http://192.168.39.115:9000/api/mail/content`
+          } else {
+            postUrl = '/api/mail/content'
+          }
+console.log(mailData)
+
           for (const messageId of mailData) {
+            console.log(messageId)
             const options2 = {
-              method: 'post',
+              url: postUrl,
               headers: {
                 'Content-Type': 'application/json',
                 'credentials': 'include',
                 'authorization': 'include'
               },
-              body: JSON.stringify({ emails: messageId }) 
+              data: {'email':messageId}
             };
-            const emailContent = await fetch('/api/mail/content', options2);
-            const emailData = await emailContent.json();
 
-            fetchedEmails.push(emailData.emailContent); 
-            console.log(emailData.emailContent)
+        console.log('trying')
+            const emailContent = await CapacitorHttp.post(options2);
+        
+
+            const emailData = emailContent.data.emailContent
+            console.log(emailData)
+            fetchedEmails.push(emailData); 
+          
           }
 
           const updatedEmailPages = [...emailPages];
@@ -117,15 +152,10 @@ const [selectedFiles, setSelectedFiles] = useState([]);
   useEffect(() => {
     async function getUserData() {
       try {
-        const options = {
-          method: "GET",
-          headers: {
-            'Content-Type': 'application/json',
-            'credentials': 'include',
-            'authorization': 'include'
-          },
-        };
+        
         let apiUrl;
+
+       
 
         if (isAndroid) {
           // Android direct API call
@@ -135,12 +165,20 @@ const [selectedFiles, setSelectedFiles] = useState([]);
           apiUrl = '/api/user'; 
         }
 
-        const response = await fetch(apiUrl, options);
+        const options = {
+          url: apiUrl,
+          headers: {
+            'Content-Type': 'application/json',
+            'credentials': 'include',
+            'authorization': 'include'
+          },
+        };
 
-        if (response.ok) {
-          const userData = await response.json();
-          const userInfo = userData.userInfo[0];
+        const response = await CapacitorHttp.get(options);
 
+        if (response.status === 200||304) {
+          
+       const userInfo = await response.data.userInfo[0]
         
           setUserData(userInfo);
         } else {
@@ -184,7 +222,6 @@ const [selectedFiles, setSelectedFiles] = useState([]);
     }
 
 
-    console.log(userData)
     if (!userData) {
      
       return <div>Loading...</div>;
@@ -197,7 +234,7 @@ if(emails == undefined){
   return <div>loading...</div>
 }
 
-console.log(emails)
+
 
 const loadNextPage = async () => {
   if (nextPageToken && !emailPages[currentPage]) {

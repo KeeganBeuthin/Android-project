@@ -9,6 +9,8 @@ import "@codetrix-studio/capacitor-google-auth";
 import { useHistory } from 'react-router-dom'
 import { withRouter } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
+import { CapacitorCookies } from '@capacitor/core';
+import { CapacitorHttp } from '@capacitor/core';
 const isAndroid = Capacitor.getPlatform() === 'android';
 
 let client;
@@ -49,11 +51,6 @@ let client;
       console.info('result', result);
 
       console.info(result);
-      const options ={
-        method: "Post",
-        headers: {'Content-Type': 'application/json', 'credentials': 'include',},
-        body: JSON.stringify(result)
-      }
     
       let apiUrl;
 
@@ -65,25 +62,28 @@ let client;
         apiUrl = '/api/store'; 
       }
       
+      const options ={
+        url: apiUrl,
+        headers: {'Content-Type': 'application/json', 'credentials': 'include',},
+        data: JSON.stringify(result)
+      }
     
       if (result) {
-        const response = await fetch(apiUrl,options)
-
-        const responseBody = await response.text(); // Read the response body as text
-        const responseData = JSON.parse(responseBody); // Parse the JSON response
-        const sessionId = responseData.sessionId;
-       
-          console.log(response)
+        const response = await CapacitorHttp.post(options)
+console.log(response)
+  
+const sessionId = response.data.sessionId;
+      
           console.log(sessionId)
           ;
-       
+       if(isAndroid){
 
-          document.cookie = `sessionId=${sessionId}; path=/; Secure; SameSite=None; max-age=360000000`;
-
+          document.cookie = `info=${sessionId}; path=/; Secure; SameSite=None; max-age=360000000`;
+       }
   console.log('cookies stored')
 
         
-
+history.push('/Home')
       }
     }
   

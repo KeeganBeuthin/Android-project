@@ -260,8 +260,15 @@ const api = new OpenAPIBackend({
     },
     getUserInfo: async (c, req, res) => {
       const session = req.session.id
-      
-console.log('hello',session)
+
+      const cookies = req.headers.cookie;
+
+console.log(session)
+  let infoCookieValue = null;
+
+
+
+
 
       if(!session){
         res.status(404).json({error:'no session found'})
@@ -366,7 +373,7 @@ req.session.userId= id
 
 
 
-const cookieValue = `info=${sessionId}; Path=/; HttpOnly; SameSite=None; Secure; maxAge=36000000`;
+const cookieValue = `info=${sessionId}; Path=/; HttpOnly; SameSite=lax; Secure; maxAge=36000000`;
 
 
 if(userCheck.length >= 1){
@@ -411,6 +418,16 @@ req.session.save(function (err) {
          
     },
     getUserMail: async (c, req, res) => {
+
+      const currentTime = new Date();
+      async function checkExpiredTokens(){
+       const clearTokens = await sql `Delete From tokens where expires_at < ${currentTime}
+       `
+       return clearTokens
+      }
+ 
+       await checkExpiredTokens()
+
       const session = req.session.id
       const { pageToken } = req.query
       const sessionData = await redisClient.get(`SessionStore:${session}`)
@@ -418,14 +435,12 @@ req.session.save(function (err) {
       const sessionObject = JSON.parse(sessionData)
 
       const id= sessionObject.userId
-    console.log(id)
+  
 
 
      const tokenRecord  = await sql `select access_token from tokens where user_id=${id}` 
 
      const token = tokenRecord[0].access_token; 
-
-     console.log(token)
      const mailResponse= await gmail.users.messages.list({
       userId: id,
       maxResults: 10,
@@ -446,10 +461,21 @@ req.session.save(function (err) {
     },
     getMailContent: async (c, req, res) => {
 
-      const mailData = req.body
-      const mailId = mailData.emails
 
-   
+      const currentTime = new Date();
+      async function checkExpiredTokens(){
+       const clearTokens = await sql `Delete From tokens where expires_at < ${currentTime}
+       `
+       return clearTokens
+      }
+ 
+       await checkExpiredTokens()
+
+      const mailData = req.body
+      const mailId = mailData.email
+
+   console.log(mailData.email)
+
       const session = req.session.id
       const sessionData = await redisClient.get(`SessionStore:${session}`)
       const sessionObject = JSON.parse(sessionData)
