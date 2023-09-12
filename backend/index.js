@@ -198,7 +198,7 @@ const api = new OpenAPIBackend({
 
       }
     },
-    '/api/send-email':{
+    '/api/send':{
       post: {
         operationId: 'sendMail',
         responses: {
@@ -513,7 +513,7 @@ req.session.save(function (err) {
 
 
       const attached = req.body.attachments
-
+console.log('request received')
       const files = [];
 
       const saveBinaryDataToFile = (binaryData, fileExtension) => {

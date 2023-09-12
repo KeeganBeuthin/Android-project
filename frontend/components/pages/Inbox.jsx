@@ -317,21 +317,25 @@ if (attach.length > 0) {
 
 console.log(emailPayload)
   
+let apiUrl 
 
-  const options = {
-    method: 'POST', 
-    headers: {
-      'Content-Type': 'application/json',
-      'credentials': 'include',
-      'authorization': 'include'
-    },
-    body: formData,
-  };
+if(isAndroid){
+  apiUrl = 'http://192.168.39.115:9000/api/send'
+} else{
+  apiUrl = '/api/send'
+}
 
 
-  const response = await fetch('/api/send-email', options); 
+const options ={
+  url: apiUrl,
+  headers: {'Content-Type': 'application/json', 'credentials': 'include',},
+  data: formData
+}
+
+
+  const response = await CapacitorHttp.post(options); 
   console.log(response)
-  if (response.ok) {
+  if (response.status===200) {
   
     setMessage(`Email sent successfully to ${inputRecipient.value}`);
     modal.dismiss();
@@ -345,20 +349,26 @@ console.log(emailPayload)
       
    
 else{
-  
-  const options = {
-  method: 'POST', 
-  headers: {
-    'Content-Type': 'application/json',
-    'credentials': 'include',
-    'authorization': 'include'
-  },
-  body: JSON.stringify(emailPayload),
-};
 
-const response = await fetch('/api/send-email', options); 
+  let apiUrl 
+
+if(isAndroid){
+  apiUrl = 'http://192.168.39.115:9000/api/send'
+} else{
+  apiUrl = '/api/send'
+}
+
+
+  const options ={
+    url: apiUrl,
+    headers: {'Content-Type': 'application/json', 'credentials': 'include',},
+    data: emailPayload
+  }
+
+
+const response = await CapacitorHttp.post(options); 
 console.log(response)
-if (response.ok) {
+if (response.status===200) {
 
   setMessage(`Email sent successfully to ${inputRecipient.value}`);
   modal.dismiss();
@@ -389,7 +399,7 @@ if (response.ok) {
     updatedFiles.splice(index, 1);
     setSelectedFiles(updatedFiles);
   };
-
+if(isAndroid){
   return (
     <IonPage>
     <IonHeader>
@@ -497,24 +507,162 @@ if (response.ok) {
       </IonToolbar>
     </IonHeader>
     <IonContent className="ion-padding">
-      <IonGrid className="email-grid">
+    <IonGrid style={{ border: '4px solid black' }}>
+  {emailPages[currentPage - 1]?.map((email, index) => (
+    <IonRow key={index} style={{ borderBottom: '4px solid black'}}>
+      <IonCol size="12" className="email-cell">
+        <div><strong>Mail ID:</strong> {email.mailId}</div>
+        <div><strong>Date:</strong> {email.date}</div>
+        <div><strong>Subject:</strong> {email.subject}</div>
+        <div><strong>Snippet:</strong> {email.snippet}</div>
+      </IonCol>
+    </IonRow>
+  ))}
+</IonGrid>
 
-        <IonRow className="header-row">
-          <IonCol className="header-cell">Mail ID</IonCol>
-          <IonCol className="header-cell">Date</IonCol>
-          <IonCol className="header-cell">Subject</IonCol>
-          <IonCol className="header-cell">Snippet</IonCol>
-        </IonRow>
+      <IonRow>
+        <IonCol className="ion-text-center">
+          <IonButton
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous Page
+          </IonButton>
+          <IonButton
+            onClick={() => loadNextPage()}
+          >
+            Next Page
+          </IonButton>
+        </IonCol>
+      </IonRow>
+    </IonContent>
+  </IonPage>
+  )
+}
+  return (
+    <IonPage>
+    <IonHeader>
+      <IonToolbar color="primary">
+        <IonTitle className='text-center'>Inbox</IonTitle>
+        <IonItem color="primary">
+          <img src={userData.image_url} alt="User" />
+          <IonLabel className='ion-padding-start'>
+            <h3>{userData.username}</h3>
+            <p>{userData.email}</p>
+          </IonLabel>
 
-        {emailPages[currentPage - 1]?.map((email, index) => (
-          <IonRow key={index} className="email-row">
-            <IonCol className="email-cell">{email.mailId}</IonCol>
-            <IonCol className="email-cell">{email.date}</IonCol>
-            <IonCol className="email-cell">{email.subject}</IonCol>
-            <IonCol className="email-cell">{email.snippet}</IonCol>
-          </IonRow>
-        ))}
-      </IonGrid>
+          <IonButton className="login-button" onClick={() => signOut()} fill="solid" color="danger">
+            home
+          </IonButton>
+          
+          <IonButton id="open-modal" expand="block" color='tertiary' > 
+            Send Mail
+          </IonButton>
+          <IonModal ref={(ref) => setModal(ref)}
+          trigger="open-modal"
+          onWillDismiss={(ev) => onWillDismiss(ev)}
+        >
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => modal.dismiss()}>Cancel</IonButton>
+              </IonButtons>
+              <IonTitle>Send Emails</IonTitle>
+              <IonButtons slot="end">
+                <IonButton strong={true} onClick={() => sendEmail()}>
+                  Confirm
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonItem>
+              <IonLabel position="stacked">Recipient</IonLabel>
+              <IonInput ref={(ref) => setInputRecipient(ref)}
+                type="text"
+                placeholder="example@gmail.com"
+              />
+               </IonItem>
+               <IonItem>
+              <IonLabel position="stacked">CC</IonLabel>
+              <IonInput ref={(ref) => setInputCC(ref)}
+                type="text"
+                placeholder="example2@gmail.com"
+              />
+               </IonItem>
+               <IonItem>
+              <IonLabel position="stacked" className='py-5'>Subject</IonLabel>
+               <IonInput ref={(ref) => setInputSubject(ref)}
+                type="text"
+                placeholder="Greetings"
+              />
+               </IonItem>
+               <IonItem>
+              <IonLabel position="stacked" className='py-5 text-lg'>Body</IonLabel>
+               <IonInput ref={(ref) => setInputBody(ref)}
+                type="text"
+                placeholder="how are you?"
+              />
+               </IonItem>
+               <IonItem>
+              <IonLabel position="stacked" className='py-5 text-lg'>Attachments</IonLabel>
+        
+    <ul>
+      {selectedFiles.map((file, index) => (
+        <li key={index}>{file.name} 
+         <button onClick={() => removeFile(index)} className='px-3 pt-2 col'><IonImg src="https://i.ibb.co/k1BVnnB/cross.png" className='w-8 h-8'></IonImg></button>
+         </li>
+        
+      ))}
+
+    </ul>
+              <IonButton onClick={openModal} id="uploadButton">Upload Files</IonButton>
+              <IonContent>
+        <IonModal isOpen={showModal} onDidDismiss={closeModal}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Upload Files</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <form encType='multipart/form-data'>
+              <input
+                type="file"
+                name='file'
+                ref={fileInputRef}
+                accept="image/*, video/*"
+                onChange={handleFileInputChange}
+                multiple
+              />
+            </form>
+            <IonButton onClick={closeModal}>Close Modal</IonButton>
+          </IonContent>
+        </IonModal>
+        </IonContent>
+            </IonItem>
+          </IonContent>
+        </IonModal>
+        </IonItem>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent className="ion-padding">
+    <IonGrid className="email-grid">
+  <IonRow className="header-row">
+    <IonCol size="2" className="header-cell">Mail ID</IonCol>
+    <IonCol size="2" className="header-cell">Date</IonCol>
+    <IonCol size="4" className="header-cell">Subject</IonCol>
+    <IonCol size="4" className="header-cell">Snippet</IonCol>
+  </IonRow>
+
+  {emailPages[currentPage - 1]?.map((email, index) => (
+    <IonRow key={index} className="email-row">
+      <IonCol size="2" className="email-cell">{email.mailId}</IonCol>
+      <IonCol size="2" className="email-cell">{email.date}</IonCol>
+      <IonCol size="4" className="email-cell">{email.subject}</IonCol>
+      <IonCol size="4" className="email-cell">{email.snippet}</IonCol>
+    </IonRow>
+  ))}
+</IonGrid>
 
       <IonRow>
         <IonCol className="ion-text-center">
